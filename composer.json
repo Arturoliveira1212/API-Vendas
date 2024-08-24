@@ -1,0 +1,25 @@
+{
+    "name": "artur/api-vendas",
+    "autoload": {
+        "psr-4": {
+            "app\\" : "src/app",
+            "core\\" : "src/core",
+            "http\\" : "src/http",
+            "router\\" : "src/router"
+        },
+        "files": [
+            "src/app/helpers/helpers.php"
+        ]
+    },
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "require-dev": {
+        "kahlan/kahlan": "^5.2",
+        "robmorgan/phinx": "^0.14.0"
+    },
+    "scripts": {
+        "phinx": "phinx",
+        "test" : "kahlan"
+    }
+}
