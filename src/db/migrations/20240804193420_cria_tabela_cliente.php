@@ -11,8 +11,8 @@ final class CriaTabelaCliente extends AbstractMigration {
             CREATE TABLE cliente (
                 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
                 nome VARCHAR(200) NOT NULL,
-                cpf VARCHAR(14) DEFAULT NULL,
-                dataCadastro DATETIME NOT NULL,
+                cpf VARCHAR(14) NOT NULL NULL,
+                dataNascimento DATE NOT NULL,
                 ativo INT DEFAULT 1
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         SQL;

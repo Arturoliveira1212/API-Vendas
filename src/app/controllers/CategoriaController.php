@@ -6,34 +6,12 @@ use app\exceptions\CampoNaoEnviadoException;
 use app\exceptions\NaoEncontradoException;
 use app\exceptions\ServiceException;
 use app\models\Categoria;
-use app\traits\ConversorDados;
-use app\views\CategoriaView;
+use http\Request;
+use http\Response;
 
 class CategoriaController extends Controller {
     public function __construct(){
         parent::__construct();
-    }
-
-    use ConversorDados;
-
-    public function listarTodos(){
-        /** @var CategoriaView */
-        $categoriaView = $this->getView();
-
-        $categorias = $this->getService()->obterComRestricoes();
-        $categoriaView->listarDados( $categorias );
-    }
-
-    public function listarComId( array $parametros ){
-        $id = intval( $parametros['categorias'] );
-        $categoria = $this->getService()->obterComId( $id );
-        if( ! $categoria instanceof Categoria ){
-            throw new NaoEncontradoException( 'Categoria não encontrada.' );
-        }
-
-        /** @var CategoriaView */
-        $categoriaView = $this->getView();
-        $categoriaView->listarDados( [ $categoria ] );
     }
 
     public function criar( array $corpoRequisicao ){
@@ -47,28 +25,69 @@ class CategoriaController extends Controller {
     }
 
     public function cadastrar(){
-        /** @var CategoriaView */
-        $categoriaView = $this->getView();
         $erro = [];
 
         try{
-            $corpoRequisicao = $categoriaView->obterDadosEnviados();
+            $corpoRequisicao = Request::corpoRequisicao();
             $categoria = $this->criar( $corpoRequisicao );
             $id = $this->getService()->salvar( $categoria, $erro );
 
-            $categoriaView->recursoCriado( $id, 'Categoria cadastrada com sucesso.' );
+            Response::recursoCriado( $id, 'Categoria cadastrada com sucesso.' );
         } catch( CampoNaoEnviadoException $e ){
-            $categoriaView->campoNaoEnviado( $e );
+            Response::campoNaoEnviado( $e );
         } catch( ServiceException $e ){
-            $categoriaView->erroAoSalvar( $erro );
+            Response::erroAoSalvar( $erro );
         }
     }
 
-    public function atualizar(){
+    public function atualizar( array $parametros ){
+        $erro = [];
 
+        try{
+            $id = intval( $parametros['categorias'] );
+            $categoria = $this->getService()->obterComId( $id );
+            if( ! $categoria instanceof Categoria ){
+                throw new NaoEncontradoException( 'Categoria não encontrada.' );
+            }
+
+            $corpoRequisicao = Request::corpoRequisicao();
+            $categoria = $this->criar( $corpoRequisicao );
+            $categoria->setId( $id );
+            $id = $this->getService()->salvar( $categoria, $erro );
+
+            Response::recursoAlterado( 'Categoria atualizada com sucesso.' );
+        } catch( NaoEncontradoException $e ){
+            throw $e;
+        } catch( CampoNaoEnviadoException $e ){
+            Response::campoNaoEnviado( $e );
+        } catch( ServiceException $e ){
+            Response::erroAoSalvar( $erro );
+        }
     }
 
     public function excluir( array $parametros ){
         $id = intval( $parametros['categorias'] );
+        $categoria = $this->getService()->obterComId( $id );
+        if( ! $categoria instanceof Categoria ){
+            throw new NaoEncontradoException( 'Categoria não encontrada.' );
+        }
+
+        $this->getService()->desativarComId( $id );
+        Response::recursoRemovido();
+    }
+
+    public function listarTodos(){
+        $categorias = $this->getService()->obterComRestricoes();
+        Response::listarDados( $categorias );
+    }
+
+    public function listarComId( array $parametros ){
+        $id = intval( $parametros['categorias'] );
+        $categoria = $this->getService()->obterComId( $id );
+        if( ! $categoria instanceof Categoria ){
+            throw new NaoEncontradoException( 'Categoria não encontrada.' );
+        }
+
+        Response::listarDados( [ $categoria ] );
     }
 }

@@ -32,6 +32,15 @@ abstract class Service {
 
     abstract protected function validar( $objeto, array &$erro = [] );
 
+    protected function validarTexto( string $texto, int $tamanhoMinimo, int $tamanhoMaximo, string $nomeAtributo, array &$erro ){
+        $tamanhoTexto = mb_strlen( $texto );
+        if( $tamanhoTexto == 0 ){
+            $erro[ $nomeAtributo ] = "Preencha o campo {$nomeAtributo}.";
+        } elseif( $tamanhoTexto > $tamanhoMaximo || $tamanhoTexto < $tamanhoMinimo ){
+            $erro[ $nomeAtributo ] = "O campo {$nomeAtributo} deve ter entre {$tamanhoMinimo} e {$tamanhoMaximo} caracteres.";
+        }
+    }
+
     public function salvar( $objeto, array &$erro = [] ){
         $this->validar( $objeto, $erro );
         return $this->getDao()->salvar( $objeto );
@@ -39,6 +48,10 @@ abstract class Service {
 
     public function desativarComId( int $id ){
         return $this->getDao()->desativarComId( $id );
+    }
+
+    public function existe( string $campo, string $valor ){
+        return $this->getDao()->existe( $campo, $valor );
     }
 
     public function obterComId( int $id ){

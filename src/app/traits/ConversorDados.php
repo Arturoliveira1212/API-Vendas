@@ -33,7 +33,7 @@ trait ConversorDados {
                             $objeto = $this->converterEmObjeto( $nomeTipo, $dados[ $nomeAtributo ] );
                             $classe->$metodo( $objeto );
                         } elseif( $objeto instanceof DateTime ){
-                            $classe->$metodo( $dados[$nomeAtributo] );
+                            $classe->$metodo( DateTime::createFromFormat( 'Y-m-d', $dados[$nomeAtributo] ) );
                         }
                     } else {
                         $classe->$metodo( $dados[$nomeAtributo] );

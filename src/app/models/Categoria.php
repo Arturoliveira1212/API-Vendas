@@ -7,6 +7,11 @@ class Categoria extends Model {
     private string $nome = '';
     private string $descricao = '';
 
+    const TAMANHO_MINIMO_NOME = 1;
+    const TAMANHO_MAXIMO_NOME = 100;
+    const TAMANHO_MINIMO_DESCRICAO = 1;
+    const TAMANHO_MAXIMO_DESCRICAO = 500;
+
     public function getId(){
         return $this->id;
     }

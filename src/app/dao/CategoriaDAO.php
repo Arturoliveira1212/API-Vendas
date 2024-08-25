@@ -3,14 +3,11 @@
 namespace app\dao;
 
 use app\models\Categoria;
-use app\traits\ConversorDados;
 
 class CategoriaDAO extends DAOEmBDR {
     public function __construct(){
         parent::__construct();
     }
-
-    use ConversorDados;
 
     protected function nomeTabela(){
         return 'categoria';

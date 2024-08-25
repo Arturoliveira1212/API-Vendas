@@ -6,14 +6,12 @@ use core\Controller;
 use app\services\Service;
 use app\dao\DAO;
 use app\exceptions\NaoEncontradoException;
-use app\views\View;
 
 abstract class ClassFactory {
 
     const CAMINHO_CONTROLLER = 'app\\controllers\\';
     const CAMINHO_SERVICE = 'app\\services\\';
     const CAMINHO_DAO = 'app\\dao\\';
-    const CAMINHO_VIEW = 'app\\views\\';
 
     /**
      * Método responsável por fabricar intâncias de controllers.
@@ -61,20 +59,5 @@ abstract class ClassFactory {
         }
 
         return new $DAO();
-    }
-
-    /**
-     * Método responsável por fabricar intâncias de Views.
-     *
-     * @param string $nomeView
-     * @return View
-     */
-    public static function makeView( string $nomeView ){
-        $view = self::CAMINHO_VIEW . $nomeView . 'View';
-        if( ! class_exists( $view ) ){
-            throw new NaoEncontradoException( "View $nomeView não encontrado" );
-        }
-
-        return new $view();
     }
 }

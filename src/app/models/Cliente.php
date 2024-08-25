@@ -10,6 +10,10 @@ class Cliente extends Model {
     private string $cpf = '';
     private ?DateTime $dataNascimento = null;
 
+    const TAMANHO_MINIMO_NOME = 1;
+    const TAMANHO_MAXIMO_NOME = 200;
+    const IDADE_MINIMA = 18;
+
     public function getId(){
         return $this->id;
     }
@@ -34,7 +38,9 @@ class Cliente extends Model {
         $this->cpf = $cpf;
     }
 
-    public function getDataNascimento(){
+    public function getDataNascimento( string $formato = null ){
+        if( isset( $formato ) )
+            return $this->dataNascimento->format( $formato );
         return $this->dataNascimento;
     }
 

@@ -7,4 +7,5 @@ abstract class HttpMethod {
     const POST = 'POST';
     const PUT = 'PUT';
     const DELETE = 'DELETE';
+    const OPTIONS = 'OPTIONS';
 }
