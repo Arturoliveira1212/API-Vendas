@@ -23,7 +23,15 @@ class Router {
         self::$rotas[ HttpMethod::DELETE ][ $path ] = $action;
     }
 
+    public static function options(string $path, string $action){
+        self::$rotas[ HttpMethod::OPTIONS ][ $path ] = $action;
+    }
+
     public static function rotas( string $metodoRequisicao ){
-        return self::$rotas[ $metodoRequisicao ];
+        if( isset( self::$rotas[ $metodoRequisicao ] ) ){
+            return self::$rotas[ $metodoRequisicao ];
+        }
+
+        return [];
     }
 }
