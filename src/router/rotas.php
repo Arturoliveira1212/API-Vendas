@@ -22,7 +22,7 @@ Router::get( '/enderecos/[0-9]+', 'Endereco@listarComId' );
 Router::get( '/clientes/[0-9]+/enderecos', 'Endereco@listarComCliente' );
 Router::post( '/clientes/[0-9]+/enderecos', 'Endereco@cadastrar' );
 Router::put( '/clientes/[0-9]+/enderecos/[0-9]+', 'Endereco@atualizar' );
-Router::delete( '/enderecos/[0-9]+', 'Endereco@desativarComId' );
+Router::delete( '/enderecos/[0-9]+', 'Endereco@excluir' );
 
 // Item
 Router::get( '/itens', 'Item@ListarTodos' );

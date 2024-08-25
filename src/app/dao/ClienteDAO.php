@@ -3,6 +3,7 @@
 namespace app\dao;
 
 use app\models\Cliente;
+use core\ClassFactory;
 
 class ClienteDAO extends DAOEmBDR {
     public function __construct(){
@@ -46,5 +47,13 @@ class ClienteDAO extends DAOEmBDR {
 
     protected function transformarEmObjeto( array $linhas ){
         return $this->converterEmObjeto( Cliente::class, $linhas );
+    }
+
+    public function desativarComId(int $id){
+        parent::desativarComId( $id );
+
+        /** @var EnderecoDAO */
+        $enderecoDAO = ClassFactory::makeDAO( 'Endereco' );
+        $enderecoDAO->desativarEnderecosDoCliente( $id );
     }
 }

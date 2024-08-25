@@ -3,10 +3,12 @@
 namespace app\controllers;
 
 use app\exceptions\CampoNaoEnviadoException;
+use app\models\Model;
 use app\services\Service;
 use app\traits\ConversorDados;
 use core\ClassFactory;
 use DateTime;
+use Throwable;
 
 abstract class Controller {
     protected string $classe;
@@ -43,18 +45,22 @@ abstract class Controller {
         }
     }
 
-    public function povoarSimples( $objeto, array $campos, array $corpoRequisicao ){
+    public function povoarSimples( Model $objeto, array $campos, array $corpoRequisicao ){
         foreach( $campos as $campo ){
             if( isset( $corpoRequisicao[ $campo ] ) ){
                 $metodo = 'set' . ucfirst( $campo );
                 if( method_exists( $objeto, $metodo ) ){
-                    $objeto->$metodo( $corpoRequisicao[ $campo ] );
+                    try{
+                        $objeto->$metodo( $corpoRequisicao[ $campo ] );
+                    } catch( Throwable $e ){
+                        throw new CampoNaoEnviadoException( "$campo não enviado." );
+                    }
                 }
             }
         }
     }
 
-    public function povoarDateTime( $objeto, array $campos, array $corpoRequisicao ){
+    public function povoarDateTime( Model $objeto, array $campos, array $corpoRequisicao ){
         foreach( $campos as $campo ){
             if( isset( $corpoRequisicao[ $campo ] ) ){
                 $metodo = 'set' . ucfirst( $campo );

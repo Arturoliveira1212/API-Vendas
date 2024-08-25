@@ -29,10 +29,7 @@ trait ConversorDados {
                     if( ! $tipoAtributo->isBuiltin() ){
                         $nomeTipo = $tipoAtributo->getName();
                         $objeto = new $nomeTipo();
-                        if( $objeto instanceof Model ){
-                            $objeto = $this->converterEmObjeto( $nomeTipo, $dados[ $nomeAtributo ] );
-                            $classe->$metodo( $objeto );
-                        } elseif( $objeto instanceof DateTime ){
+                        if( $objeto instanceof DateTime ){
                             $classe->$metodo( DateTime::createFromFormat( 'Y-m-d', $dados[$nomeAtributo] ) );
                         }
                     } else {
@@ -60,7 +57,7 @@ trait ConversorDados {
                         $nomeTipo = $tipoAtributo->getName();
                         $objeto = new $nomeTipo();
                         if( $objeto instanceof Model ){
-                            $array[ $nomeAtributo ] = $classe->$metodo()->getId();
+                            $array[ 'id' . ucfirst( $nomeAtributo ) ] = $classe->$metodo()->getId();
                         } elseif( $objeto instanceof DateTime ){
                             $array[ $nomeAtributo ] = $classe->$metodo( 'Y-m-d H:i:s' );
                         }
