@@ -11,6 +11,8 @@ abstract class DAOEmBDR implements DAO {
         $this->bancoDados = new BancoDadosRelacional();
     }
 
+    use ConversorDados;
+
     protected function getBancoDados(){
         return $this->bancoDados;
     }
@@ -33,8 +35,11 @@ abstract class DAOEmBDR implements DAO {
     }
 
     public function desativarComId( int $id ){
-        $nomeTabela = $this->nomeTabela();
-        return $this->getBancoDados()->desativar( $nomeTabela, $id );
+        return $this->getBancoDados()->desativar( $this->nomeTabela(), $id );
+    }
+
+    public function existe( string $campo, string $valor ){
+        return $this->getBancoDados()->existe( $this->nomeTabela(), $campo, $valor );
     }
 
     public function obterComId( $id ){

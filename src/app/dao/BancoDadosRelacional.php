@@ -52,8 +52,16 @@ class BancoDadosRelacional implements BancoDados {
         return $this->executar( $comando, $parametros );
     }
 
-    public function existe(){
-        // TO DO
+    public function existe( string $tabela, string $campo, string $valor ){
+        $comando = "SELECT COUNT(*) as quantidadeRegistros FROM $tabela WHERE $campo = :valor AND ativo = :ativo";
+        $parametros = [ 'valor' => $valor, 'ativo' => 1 ];
+
+        $resultado = $this->consultar( $comando, $parametros )[0];
+        if( isset( $resultado['quantidadeRegistros'] ) && $resultado['quantidadeRegistros'] > 0 ){
+            return true;
+        }
+
+        return false;
     }
 
     public function ultimoIdInserido(){
