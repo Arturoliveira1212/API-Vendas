@@ -13,5 +13,6 @@ try {
 } catch( NaoEncontradoException $e ){
     Response::recursoNaoEncontrado( $e );
 } catch( Throwable $e ){
+    dd( $e );
     Response::erroInternoAPI();
 }

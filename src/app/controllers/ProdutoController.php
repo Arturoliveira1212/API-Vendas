@@ -1,0 +1,104 @@
+<?php
+
+namespace app\controllers;
+
+use app\exceptions\CampoNaoEnviadoException;
+use app\exceptions\NaoEncontradoException;
+use app\exceptions\ServiceException;
+use app\models\Categoria;
+use app\models\Produto;
+use core\ClassFactory;
+use http\Request;
+use http\Response;
+
+class ProdutoController extends Controller {
+    public function __construct(){
+        parent::__construct();
+    }
+
+    public function criar( array $corpoRequisicao ){
+        $produto = new Produto();
+
+        $campos = [ 'referencia', 'nome', 'descricao', 'peso', 'categoria' ];
+        $this->verificaEnvio( $campos, $corpoRequisicao );
+
+        $camposSimples = [ 'referencia', 'nome', 'descricao', 'peso' ];
+        $this->povoarSimples( $produto, $camposSimples, $corpoRequisicao );
+
+        // TO DO => Implementar povoarObjetos generico.
+        if( isset( $corpoRequisicao['categoria']['id'] ) ){
+            /** @var CategoriaController */
+            $categoriaController = ClassFactory::makeController( 'Categoria' );
+            $categoria = $categoriaController->obterComId( $corpoRequisicao['categoria']['id'] );
+            $produto->setCategoria( $categoria );
+        }
+
+        return $produto;
+    }
+
+    public function cadastrar(){
+        $erro = [];
+
+        try{
+            $corpoRequisicao = Request::corpoRequisicao();
+            $produto = $this->criar( $corpoRequisicao );
+            $id = $this->getService()->salvar( $produto, $erro );
+            Response::recursoCriado( $id, 'Produto cadastrado com sucesso.' );
+        } catch( CampoNaoEnviadoException $e ){
+            Response::campoNaoEnviado( $e );
+        } catch( ServiceException $e ){
+            Response::erroAoSalvar( $erro );
+        }
+    }
+
+    public function atualizar( array $parametros ){
+        $erro = [];
+
+        try{
+            $id = intval( $parametros['produtos'] );
+            $produto = $this->getService()->obterComId( $id );
+            if( ! $produto instanceof Produto ){
+                throw new NaoEncontradoException( 'Produto não encontrado.' );
+            }
+
+            $corpoRequisicao = Request::corpoRequisicao();
+            $produto = $this->criar( $corpoRequisicao );
+            $produto->setId( $id );
+            $id = $this->getService()->salvar( $produto, $erro );
+
+            Response::recursoAlterado( 'Produto atualizado com sucesso.' );
+        } catch( NaoEncontradoException $e ){
+            throw $e;
+        } catch( CampoNaoEnviadoException $e ){
+            Response::campoNaoEnviado( $e );
+        } catch( ServiceException $e ){
+            Response::erroAoSalvar( $erro );
+        }
+    }
+
+    public function excluir( array $parametros ){
+        $id = intval( $parametros['produtos'] );
+        $produto = $this->getService()->obterComId( $id );
+        if( ! $produto instanceof Produto ){
+            throw new NaoEncontradoException( 'Produto não encontrado.' );
+        }
+
+        $this->getService()->desativarComId( $id );
+        Response::recursoRemovido();
+    }
+
+    public function listarTodos(){
+        $produto = $this->getService()->obterComRestricoes();
+        Response::listarDados( $produto );
+    }
+
+    public function listarComId( array $parametros ){
+        $id = intval( $parametros['produtos'] );
+        $produto = $this->getService()->obterComId( $id );
+        if( ! $produto instanceof Produto ){
+            throw new NaoEncontradoException( 'Produto não encontrado.' );
+        }
+
+        Response::listarDados( [ $produto ] );
+    }
+}

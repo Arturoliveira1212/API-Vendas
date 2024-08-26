@@ -24,6 +24,13 @@ Router::post( '/clientes/[0-9]+/enderecos', 'Endereco@cadastrar' );
 Router::put( '/clientes/[0-9]+/enderecos/[0-9]+', 'Endereco@atualizar' );
 Router::delete( '/enderecos/[0-9]+', 'Endereco@excluir' );
 
+// Produto
+Router::get( '/produtos', 'Produto@listarTodos' );
+Router::get( '/produtos/[0-9]+', 'Produto@listarComId' );
+Router::post( '/produtos', 'Produto@cadastrar' );
+Router::put( '/produtos/[0-9]+', 'Produto@atualizar' );
+Router::delete( '/produtos/[0-9]+', 'Produto@excluir' );
+
 // Item
 Router::get( '/itens', 'Item@ListarTodos' );
 Router::get( '/itens/[0-9]+', 'Item@listarComId' );
@@ -34,10 +41,3 @@ Router::delete( '/itens/[0-9]+', 'Item@desativarComId' );
 
 // Item Pedido -> TO DO
 // Pedido => TO DO
-
-// Produto
-Router::get( '/produtos', 'Produto@listarTodos' );
-Router::get( '/produtos/[0-9]+', 'Produto@listarComId' );
-Router::post( '/produtos', 'Produto@cadastrar' );
-Router::put( '/produtos/[0-9]+', 'Produto@atualizar' );
-Router::delete( '/produtos/[0-9]+', 'Produto@desativarComId' );
