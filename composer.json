@@ -15,11 +15,12 @@
         "vlucas/phpdotenv": "^5.6"
     },
     "require-dev": {
-        "kahlan/kahlan": "^5.2",
-        "robmorgan/phinx": "^0.14.0"
+        "robmorgan/phinx": "^0.14.0",
+        "phpunit/phpunit": "^9.6",
+        "guzzlehttp/guzzle": "^7.9"
     },
     "scripts": {
         "phinx": "phinx",
-        "test" : "kahlan"
+        "test" : "phpunit"
     }
 }

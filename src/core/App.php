@@ -2,16 +2,25 @@
 
 namespace core;
 
+use app\controllers\Controller;
 use core\ClassFactory;
 use app\exceptions\NaoEncontradoException;
 use http\Request;
+use http\Response;
 use router\Router;
 
 class App {
+    private Request $request;
+    private Response $response;
+
+    public function __construct( Request $request, Response $response ){
+        $this->request = $request;
+        $this->response = $response;
+    }
 
     public function executar(){
-        $uri = Request::uri();
-        $metodoRequisicao = Request::metodo();
+        $uri = $this->request->uri();
+        $metodoRequisicao = $this->request->metodo();
         $informacoesRota = $this->obterInformacoesRota( $uri, $metodoRequisicao );
         if( empty( $informacoesRota ) ){
             throw new NaoEncontradoException( 'Recurso não encontrado.' );
@@ -19,7 +28,10 @@ class App {
 
         list( $nomeController, $metodo ) = explode( '@', array_values( $informacoesRota )[0] );
 
+        /** @var Controller */
         $controller = ClassFactory::makeController( $nomeController );
+        $controller->setRequest( $this->request );
+        $controller->setResponse( $this->response );
 
         if( ! method_exists( $controller, $metodo ) ){
             throw new NaoEncontradoException( 'Método não encontrado.' );

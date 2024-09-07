@@ -2,6 +2,7 @@
 
 namespace app\dao;
 
+use app\models\Categoria;
 use app\models\Produto;
 use core\ClassFactory;
 

@@ -11,16 +11,12 @@ class ProdutoService extends Service {
         parent::__construct();
     }
 
-    public function validar( $produto, array &$erro = [] ){
+    protected function validar( $produto, array &$erro = [] ){
         $this->validarReferencia( $produto, $erro );
         $this->validarNome( $produto, $erro );
         $this->validarDescricao( $produto, $erro );
         $this->validarPeso( $produto, $erro );
         $this->validarCategoria( $produto, $erro );
-
-        if( ! empty( $erro ) ){
-            throw new ServiceException( 'Houve um erro ao salvar.' );
-        }
     }
 
     private function validarReferencia( Produto $produto, array &$erro ){

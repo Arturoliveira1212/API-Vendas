@@ -16,7 +16,7 @@ class ProdutoController extends Controller {
         parent::__construct();
     }
 
-    public function criar( array $corpoRequisicao ){
+    protected function criar( array $corpoRequisicao ){
         $produto = new Produto();
 
         $campos = [ 'referencia', 'nome', 'descricao', 'peso', 'categoria' ];
@@ -40,14 +40,14 @@ class ProdutoController extends Controller {
         $erro = [];
 
         try{
-            $corpoRequisicao = Request::corpoRequisicao();
+            $corpoRequisicao = $this->getRequest()->corpoRequisicao();
             $produto = $this->criar( $corpoRequisicao );
             $id = $this->getService()->salvar( $produto, $erro );
-            Response::recursoCriado( $id, 'Produto cadastrado com sucesso.' );
+            $this->getResponse()->recursoCriado( $id, 'Produto cadastrado com sucesso.' );
         } catch( CampoNaoEnviadoException $e ){
-            Response::campoNaoEnviado( $e );
+            $this->getResponse()->campoNaoEnviado( $e );
         } catch( ServiceException $e ){
-            Response::erroAoSalvar( $erro );
+            $this->getResponse()->erroAoSalvar( $e );
         }
     }
 
@@ -61,18 +61,18 @@ class ProdutoController extends Controller {
                 throw new NaoEncontradoException( 'Produto não encontrado.' );
             }
 
-            $corpoRequisicao = Request::corpoRequisicao();
+            $corpoRequisicao = $this->getRequest()->corpoRequisicao();
             $produto = $this->criar( $corpoRequisicao );
             $produto->setId( $id );
             $id = $this->getService()->salvar( $produto, $erro );
 
-            Response::recursoAlterado( 'Produto atualizado com sucesso.' );
+            $this->getResponse()->recursoAlterado( 'Produto atualizado com sucesso.' );
         } catch( NaoEncontradoException $e ){
             throw $e;
         } catch( CampoNaoEnviadoException $e ){
-            Response::campoNaoEnviado( $e );
+            $this->getResponse()->campoNaoEnviado( $e );
         } catch( ServiceException $e ){
-            Response::erroAoSalvar( $erro );
+            $this->getResponse()->erroAoSalvar( $e );
         }
     }
 
@@ -84,12 +84,12 @@ class ProdutoController extends Controller {
         }
 
         $this->getService()->desativarComId( $id );
-        Response::recursoRemovido();
+        $this->getResponse()->recursoRemovido();
     }
 
     public function listarTodos(){
         $produto = $this->getService()->obterComRestricoes();
-        Response::listarDados( $produto );
+        $this->getResponse()->listarDados( $produto );
     }
 
     public function listarComId( array $parametros ){
@@ -99,6 +99,6 @@ class ProdutoController extends Controller {
             throw new NaoEncontradoException( 'Produto não encontrado.' );
         }
 
-        Response::listarDados( [ $produto ] );
+        $this->getResponse()->listarDados( [ $produto ] );
     }
 }

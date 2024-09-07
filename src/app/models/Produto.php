@@ -69,13 +69,13 @@ class Produto extends Model {
         $this->categoria = $categoria;
     }
 
-    public function getCaminhoImagem(){
-        return $this->caminhoImagem;
-    }
+    // public function getCaminhoImagem(){
+    //     return $this->caminhoImagem;
+    // }
 
-    public function setCaminhoImagem( string $caminhoImagem ){
-        $this->caminhoImagem = $caminhoImagem;
-    }
+    // public function setCaminhoImagem( string $caminhoImagem ){
+    //     $this->caminhoImagem = $caminhoImagem;
+    // }
 
     public function getDataCadastro(){
         return $this->dataCadastro;

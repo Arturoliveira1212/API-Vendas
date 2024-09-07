@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace db\seeds;
+
 use Phinx\Seed\AbstractSeed;
 
 class Categoria extends AbstractSeed {

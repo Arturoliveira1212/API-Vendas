@@ -14,7 +14,7 @@ class ClienteController extends Controller {
         parent::__construct();
     }
 
-    public function criar( array $corpoRequisicao ){
+    protected function criar( array $corpoRequisicao ){
         $cliente = new Cliente();
 
         $campos = [ 'nome', 'cpf', 'dataNascimento' ];
@@ -31,15 +31,15 @@ class ClienteController extends Controller {
         $erro = [];
 
         try{
-            $corpoRequisicao = Request::corpoRequisicao();
+            $corpoRequisicao = $this->getRequest()->corpoRequisicao();
             $cliente = $this->criar( $corpoRequisicao );
             $id = $this->getService()->salvar( $cliente, $erro );
 
-            Response::recursoCriado( $id, 'Cliente cadastrado com sucesso.' );
+            $this->getResponse()->recursoCriado( $id, 'Cliente cadastrado com sucesso.' );
         } catch( CampoNaoEnviadoException $e ){
-            Response::campoNaoEnviado( $e );
+            $this->getResponse()->campoNaoEnviado( $e );
         } catch( ServiceException $e ){
-            Response::erroAoSalvar( $erro );
+            $this->getResponse()->erroAoSalvar( $e );
         }
     }
 
@@ -53,18 +53,18 @@ class ClienteController extends Controller {
                 throw new NaoEncontradoException( 'Cliente não encontrado.' );
             }
 
-            $corpoRequisicao = Request::corpoRequisicao();
+            $corpoRequisicao = $this->getRequest()->corpoRequisicao();
             $cliente = $this->criar( $corpoRequisicao );
             $cliente->setId( $id );
             $id = $this->getService()->salvar( $cliente, $erro );
 
-            Response::recursoAlterado( 'Cliente atualizado com sucesso.' );
+            $this->getResponse()->recursoAlterado( 'Cliente atualizado com sucesso.' );
         } catch( NaoEncontradoException $e ){
             throw $e;
         } catch( CampoNaoEnviadoException $e ){
-            Response::campoNaoEnviado( $e );
+            $this->getResponse()->campoNaoEnviado( $e );
         } catch( ServiceException $e ){
-            Response::erroAoSalvar( $erro );
+            $this->getResponse()->erroAoSalvar( $e );
         }
     }
 
@@ -76,12 +76,12 @@ class ClienteController extends Controller {
         }
 
         $this->getService()->desativarComId( $id );
-        Response::recursoRemovido();
+        $this->getResponse()->recursoRemovido();
     }
 
     public function listarTodos(){
         $clientes = $this->getService()->obterComRestricoes();
-        Response::listarDados( $clientes );
+        $this->getResponse()->listarDados( $clientes );
     }
 
     public function listarComId( array $parametros ){
@@ -91,6 +91,6 @@ class ClienteController extends Controller {
             throw new NaoEncontradoException( 'Cliente não encontrado.' );
         }
 
-        Response::listarDados( [ $cliente ] );
+        $this->getResponse()->listarDados( [ $cliente ] );
     }
 }

@@ -3,6 +3,7 @@
 namespace app\dao;
 
 use app\models\Cliente;
+use app\models\Endereco;
 use core\ClassFactory;
 
 class ClienteDAO extends DAOEmBDR {

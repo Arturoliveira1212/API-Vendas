@@ -26,5 +26,4 @@ abstract class Model implements JsonSerializable {
 
         return $array;
     }
-
 }

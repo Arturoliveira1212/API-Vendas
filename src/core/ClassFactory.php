@@ -5,7 +5,7 @@ namespace core;
 use core\Controller;
 use app\services\Service;
 use app\dao\DAO;
-use app\exceptions\NaoEncontradoException;
+use InvalidArgumentException;
 
 abstract class ClassFactory {
 
@@ -16,46 +16,46 @@ abstract class ClassFactory {
     /**
      * Método responsável por fabricar intâncias de controllers.
      *
-     * @param string $nomeController
-     * @throws NaoEncontradoException
+     * @param string $nome
+     * @throws InvalidArgumentException
      * @return Controller
      */
-    public static function makeController( string $nomeController ){
-        $controller = self::CAMINHO_CONTROLLER . $nomeController . 'Controller';
+    public static function makeController( string $classe ){
+        $controller = self::CAMINHO_CONTROLLER . $classe . 'Controller';
         if( ! class_exists( $controller ) ){
-            throw new NaoEncontradoException( "Controller $nomeController não encontrado." );
+            throw new InvalidArgumentException( "Controller $controller não encontrado." );
         }
 
-        return new $controller();
+        return new $controller( self::makeService( $classe ) );
     }
 
     /**
      * Método responsável por fabricar intâncias de services.
      *
-     * @param string $nomeService
-     * @throws NaoEncontradoException
+     * @param string $service
+     * @throws InvalidArgumentException
      * @return Service
      */
-    public static function makeService( string $nomeService ){
-        $service = self::CAMINHO_SERVICE . $nomeService . 'Service';
+    public static function makeService( string $classe ){
+        $service = self::CAMINHO_SERVICE . $classe . 'Service';
         if( ! class_exists( $service ) ){
-            throw new NaoEncontradoException( "Service $nomeService não encontrado." );
+            throw new InvalidArgumentException( "Service $service não encontrado." );
         }
 
-        return new $service();
+        return new $service( self::makeDAO( $classe ) );
     }
 
     /**
      * Método responsável por fabricar intâncias de DAOs.
      *
      * @param string $nomeDAO
-     * @throws NaoEncontradoException
+     * @throws InvalidArgumentException
      * @return DAO
      */
-    public static function makeDAO( string $nomeDAO ){
-        $DAO = self::CAMINHO_DAO . $nomeDAO . 'DAO';
+    public static function makeDAO( string $classe ){
+        $DAO = self::CAMINHO_DAO . $classe . 'DAO';
         if( ! class_exists( $DAO ) ){
-            throw new NaoEncontradoException( "DAO $nomeDAO não encontrado." );
+            throw new InvalidArgumentException( "DAO $classe não encontrado." );
         }
 
         return new $DAO();

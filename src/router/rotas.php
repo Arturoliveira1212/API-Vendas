@@ -37,7 +37,7 @@ Router::get( '/itens/[0-9]+', 'Item@listarComId' );
 Router::get( '/produtos/[0-9]+/itens', 'Item@listarComProduto' );
 Router::post( '/produtos/[0-9]+/itens', 'Item@cadastrar' );
 Router::put( '/produtos/[0-9]+/itens/[0-9]+', 'Item@atualizar' );
-Router::delete( '/itens/[0-9]+', 'Item@desativarComId' );
+Router::delete( '/itens/[0-9]+', 'Item@excluir' );
 
 // Item Pedido -> TO DO
 // Pedido => TO DO

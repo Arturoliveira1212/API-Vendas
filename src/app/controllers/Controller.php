@@ -6,38 +6,49 @@ use app\exceptions\CampoNaoEnviadoException;
 use app\models\Model;
 use app\services\Service;
 use app\traits\ConversorDados;
-use core\ClassFactory;
 use DateTime;
+use http\Request;
+use http\Response;
 use Throwable;
 
 abstract class Controller {
-    protected string $classe;
     protected Service $service;
+    protected Request $request;
+    protected Response $response;
 
     use ConversorDados;
 
-    public function __construct(){
-        $this->setClasse( str_replace( 'Controller','', basename( str_replace( '\\', '/', get_class( $this ) ) ) ) );
-        $this->setService( ClassFactory::makeService( $this->getClasse() ) );
+    public function __construct( Service $service ){
+        $this->setService( $service );
     }
 
-    public function getClasse(){
-        return $this->classe;
-    }
-
-    public function setClasse( string $classe ){
-        $this->classe = $classe;
-    }
-
-    public function getService(){
+    protected function getService(){
         return $this->service;
     }
 
-    public function setService( Service $service ){
+    protected function setService( Service $service ){
         $this->service = $service;
     }
 
-    public function verificaEnvio( array $campos, array $corpoRequisicao ){
+    public function getRequest(){
+        return $this->request;
+    }
+
+    public function setRequest( Request $request ){
+        $this->request = $request;
+    }
+
+    public function getResponse(){
+        return $this->response;
+    }
+
+    public function setResponse( Response $response ){
+        $this->response = $response;
+    }
+
+    abstract protected function criar( array $corpoRequisicao );
+
+    protected function verificaEnvio( array $campos, array $corpoRequisicao ){
         foreach( $campos as $campo ){
             if( ! isset( $corpoRequisicao[ $campo ] ) ){
                 throw new CampoNaoEnviadoException( "$campo não enviado." );
@@ -45,7 +56,7 @@ abstract class Controller {
         }
     }
 
-    public function povoarSimples( Model $objeto, array $campos, array $corpoRequisicao ){
+    protected function povoarSimples( Model $objeto, array $campos, array $corpoRequisicao ){
         foreach( $campos as $campo ){
             if( isset( $corpoRequisicao[ $campo ] ) ){
                 $metodo = 'set' . ucfirst( $campo );
@@ -60,7 +71,7 @@ abstract class Controller {
         }
     }
 
-    public function povoarDateTime( Model $objeto, array $campos, array $corpoRequisicao ){
+    protected function povoarDateTime( Model $objeto, array $campos, array $corpoRequisicao ){
         foreach( $campos as $campo ){
             if( isset( $corpoRequisicao[ $campo ] ) ){
                 $metodo = 'set' . ucfirst( $campo );
@@ -76,8 +87,8 @@ abstract class Controller {
         }
     }
 
-    public function salvar( $objeto, array &$erro = [] ){
-        return $this->getService()->salvar( $objeto, $erro );
+    public function salvar( Model $objeto ){
+        return $this->getService()->salvar( $objeto );
     }
 
     public function desativarComId( int $id ){

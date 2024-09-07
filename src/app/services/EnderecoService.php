@@ -12,7 +12,7 @@ class EnderecoService extends Service {
         parent::__construct();
     }
 
-    public function validar( $endereco, array &$erro = [] ){
+    protected function validar( $endereco ){
         $this->validarCliente( $endereco, $erro );
         $this->validarCep( $endereco, $erro );
         $this->validarLogradouro( $endereco, $erro );
@@ -20,10 +20,6 @@ class EnderecoService extends Service {
         $this->validarBairro( $endereco, $erro );
         $this->validarNumero( $endereco, $erro );
         $this->validarComplemento( $endereco, $erro );
-
-        if( ! empty( $erro ) ){
-            throw new ServiceException( 'Houve um erro ao salvar.' );
-        }
     }
 
     private function validarCliente( $endereco, array &$erro ){

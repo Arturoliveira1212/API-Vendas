@@ -16,7 +16,7 @@ class EnderecoController extends Controller {
         parent::__construct();
     }
 
-    public function criar( array $corpoRequisicao ){
+    protected function criar( array $corpoRequisicao ){
         $endereco = new Endereco();
 
         $campos = [ 'cep', 'logradouro', 'cidade', 'bairro', 'numero' ];
@@ -40,16 +40,16 @@ class EnderecoController extends Controller {
                 throw new NaoEncontradoException( 'Cliente não encontrado.' );
             }
 
-            $corpoRequisicao = Request::corpoRequisicao();
+            $corpoRequisicao = $this->getRequest()->corpoRequisicao();
             $endereco = $this->criar( $corpoRequisicao );
             $endereco->setCliente( $cliente );
 
             $id = $this->getService()->salvar( $endereco, $erro );
-            Response::recursoCriado( $id, 'Endereco cadastrado com sucesso.' );
+            $this->getResponse()->recursoCriado( $id, 'Endereco cadastrado com sucesso.' );
         } catch( CampoNaoEnviadoException $e ){
-            Response::campoNaoEnviado( $e );
+            $this->getResponse()->campoNaoEnviado( $e );
         } catch( ServiceException $e ){
-            Response::erroAoSalvar( $erro );
+            $this->getResponse()->erroAoSalvar( $e );
         }
     }
 
@@ -71,19 +71,19 @@ class EnderecoController extends Controller {
                 throw new NaoEncontradoException( 'Endereco não encontrado.' );
             }
 
-            $corpoRequisicao = Request::corpoRequisicao();
+            $corpoRequisicao = $this->getRequest()->corpoRequisicao();
             $endereco = $this->criar( $corpoRequisicao );
             $endereco->setId( $id );
             $endereco->setCliente( $cliente );
 
             $id = $this->getService()->salvar( $endereco, $erro );
-            Response::recursoAlterado( 'Endereco atualizado com sucesso.' );
+            $this->getResponse()->recursoAlterado( 'Endereco atualizado com sucesso.' );
         } catch( NaoEncontradoException $e ){
             throw $e;
         } catch( CampoNaoEnviadoException $e ){
-            Response::campoNaoEnviado( $e );
+            $this->getResponse()->campoNaoEnviado( $e );
         } catch( ServiceException $e ){
-            Response::erroAoSalvar( $erro );
+            $this->getResponse()->erroAoSalvar( $e );
         }
     }
 
@@ -95,12 +95,12 @@ class EnderecoController extends Controller {
         }
 
         $this->getService()->desativarComId( $id );
-        Response::recursoRemovido();
+        $this->getResponse()->recursoRemovido();
     }
 
     public function listarTodos(){
         $enderecos = $this->getService()->obterComRestricoes();
-        Response::listarDados( $enderecos );
+        $this->getResponse()->listarDados( $enderecos );
     }
 
     public function listarComId( array $parametros ){
@@ -110,7 +110,7 @@ class EnderecoController extends Controller {
             throw new NaoEncontradoException( 'Endereco não encontrado.' );
         }
 
-        Response::listarDados( [ $endereco ] );
+        $this->getResponse()->listarDados( [ $endereco ] );
     }
 
     public function listarComCliente( array $parametros ){
@@ -125,6 +125,6 @@ class EnderecoController extends Controller {
 
         $restricoes = [ 'idCliente' => $idCliente ];
         $enderecos = $this->getService()->obterComRestricoes( $restricoes );
-        Response::listarDados( $enderecos );
+        $this->getResponse()->listarDados( $enderecos );
     }
 }

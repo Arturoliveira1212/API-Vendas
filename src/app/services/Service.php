@@ -3,23 +3,15 @@
 namespace app\services;
 
 use app\dao\DAO;
+use app\exceptions\ServiceException;
+use app\models\Model;
 use core\ClassFactory;
 
 abstract class Service {
-    protected string $classe;
     protected DAO $dao;
 
-    public function __construct(){
-        $this->setClasse( str_replace( 'Service','', basename( str_replace( '\\', '/', get_class( $this ) ) ) ) );
-        $this->setDao( ClassFactory::makeDAO( $this->getClasse() ) );
-    }
-
-    public function getClasse(){
-        return $this->classe;
-    }
-
-    public function setClasse( string $classe ){
-        $this->classe = $classe;
+    public function __construct( DAO $dao ){
+        $this->setDao( $dao );
     }
 
     protected function getDao(){
@@ -30,7 +22,7 @@ abstract class Service {
         $this->dao = $dao;
     }
 
-    abstract protected function validar( $objeto, array &$erro = [] );
+    abstract protected function validar( Model $objeto, array &$erro = [] );
 
     protected function validarTexto( string $texto, int $tamanhoMinimo, int $tamanhoMaximo, string $nomeAtributo, array &$erro ){
         $tamanhoTexto = mb_strlen( $texto );
@@ -41,8 +33,13 @@ abstract class Service {
         }
     }
 
-    public function salvar( $objeto, array &$erro = [] ){
+    public function salvar( Model $objeto ){
+        $erro = [];
         $this->validar( $objeto, $erro );
+        if( ! empty( $erro ) ){
+            throw new ServiceException( json_encode( $erro ) );
+        }
+
         return $this->getDao()->salvar( $objeto );
     }
 

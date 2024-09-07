@@ -11,14 +11,10 @@ class ClienteService extends Service {
         parent::__construct();
     }
 
-    public function validar( $cliente, array &$erro = [] ){
+    protected function validar( $cliente, array &$erro = [] ){
         $this->validarNome( $cliente, $erro );
         $this->validarCpf( $cliente, $erro );
         $this->validarDataNascimento( $cliente, $erro );
-
-        if( ! empty( $erro ) ){
-            throw new ServiceException( 'Houve um erro ao salvar.' );
-        }
     }
 
     private function validarNome( Cliente $cliente, array &$erro ){

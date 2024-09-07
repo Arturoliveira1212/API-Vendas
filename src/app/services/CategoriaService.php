@@ -6,17 +6,10 @@ use app\exceptions\ServiceException;
 use app\models\Categoria;
 
 class CategoriaService extends Service {
-    public function __construct(){
-        parent::__construct();
-    }
 
-    public function validar( $categoria, array &$erro = [] ){
+    protected function validar( $categoria, array &$erro = [] ){
         $this->validarNome( $categoria, $erro );
         $this->validarDescricao( $categoria, $erro );
-
-        if( ! empty( $erro ) ){
-            throw new ServiceException( 'Houve um erro ao salvar.' );
-        }
     }
 
     private function validarNome( Categoria $categoria, array &$erro ){

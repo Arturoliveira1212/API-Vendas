@@ -6,15 +6,10 @@ use app\exceptions\CampoNaoEnviadoException;
 use app\exceptions\NaoEncontradoException;
 use app\exceptions\ServiceException;
 use app\models\Categoria;
-use http\Request;
-use http\Response;
 
 class CategoriaController extends Controller {
-    public function __construct(){
-        parent::__construct();
-    }
 
-    public function criar( array $corpoRequisicao ){
+    protected function criar( array $corpoRequisicao ){
         $categoria = new Categoria();
 
         $campos = [ 'nome', 'descricao' ];
@@ -28,15 +23,15 @@ class CategoriaController extends Controller {
         $erro = [];
 
         try{
-            $corpoRequisicao = Request::corpoRequisicao();
+            $corpoRequisicao = $this->getRequest()->corpoRequisicao();
             $categoria = $this->criar( $corpoRequisicao );
             $id = $this->getService()->salvar( $categoria, $erro );
 
-            Response::recursoCriado( $id, 'Categoria cadastrada com sucesso.' );
+            $this->getResponse()->recursoCriado( $id, 'Categoria cadastrada com sucesso.' );
         } catch( CampoNaoEnviadoException $e ){
-            Response::campoNaoEnviado( $e );
+            $this->getResponse()->campoNaoEnviado( $e );
         } catch( ServiceException $e ){
-            Response::erroAoSalvar( $erro );
+            $this->getResponse()->erroAoSalvar( $e );
         }
     }
 
@@ -50,18 +45,18 @@ class CategoriaController extends Controller {
                 throw new NaoEncontradoException( 'Categoria não encontrada.' );
             }
 
-            $corpoRequisicao = Request::corpoRequisicao();
+            $corpoRequisicao = $this->getRequest()->corpoRequisicao();
             $categoria = $this->criar( $corpoRequisicao );
             $categoria->setId( $id );
             $id = $this->getService()->salvar( $categoria, $erro );
 
-            Response::recursoAlterado( 'Categoria atualizada com sucesso.' );
+            $this->getResponse()->recursoAlterado( 'Categoria atualizada com sucesso.' );
         } catch( NaoEncontradoException $e ){
             throw $e;
         } catch( CampoNaoEnviadoException $e ){
-            Response::campoNaoEnviado( $e );
+            $this->getResponse()->campoNaoEnviado( $e );
         } catch( ServiceException $e ){
-            Response::erroAoSalvar( $erro );
+            $this->getResponse()->erroAoSalvar( $e );
         }
     }
 
@@ -73,12 +68,12 @@ class CategoriaController extends Controller {
         }
 
         $this->getService()->desativarComId( $id );
-        Response::recursoRemovido();
+        $this->getResponse()->recursoRemovido();
     }
 
     public function listarTodos(){
         $categorias = $this->getService()->obterComRestricoes();
-        Response::listarDados( $categorias );
+        $this->getResponse()->listarDados( $categorias );
     }
 
     public function listarComId( array $parametros ){
@@ -88,6 +83,6 @@ class CategoriaController extends Controller {
             throw new NaoEncontradoException( 'Categoria não encontrada.' );
         }
 
-        Response::listarDados( [ $categoria ] );
+        $this->getResponse()->listarDados( [ $categoria ] );
     }
 }

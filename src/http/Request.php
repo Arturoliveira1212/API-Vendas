@@ -3,13 +3,23 @@
 namespace http;
 
 class Request {
+    private $uri;
+    private $method;
+    private $body;
+
+    public function __construct() {
+        $this->uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $this->method = $_SERVER['REQUEST_METHOD'];
+        $this->body = json_decode(file_get_contents('php://input'), true) ?? [];
+    }
+
     /**
      * Método responsável por retornar a URI da requisição enviada.
      *
      * @return string
      */
-    public static function uri(){
-        return parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+    public function uri() {
+        return $this->uri;
     }
 
     /**
@@ -17,8 +27,8 @@ class Request {
      *
      * @return string
      */
-    public static function metodo(){
-        return $_SERVER['REQUEST_METHOD'];
+    public function metodo() {
+        return $this->method;
     }
 
     /**
@@ -26,7 +36,7 @@ class Request {
      *
      * @return array
      */
-    public static function corpoRequisicao(){
-        return json_decode(file_get_contents('php://input'), true) ?? [];
+    public function corpoRequisicao() {
+        return $this->body;
     }
 }
