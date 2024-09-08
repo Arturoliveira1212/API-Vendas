@@ -5,6 +5,7 @@ namespace app\services;
 use app\dao\DAO;
 use app\exceptions\ServiceException;
 use app\models\Model;
+use core\QueryParams;
 
 abstract class Service {
     protected DAO $dao;
@@ -54,7 +55,7 @@ abstract class Service {
         return $this->getDao()->obterComId( $id );
     }
 
-    public function obterComRestricoes( array $restricoes = [] ){
-        return $this->getDao()->obterComRestricoes( $restricoes );
+    public function obterComRestricoes( QueryParams $queryParams ){
+        return $this->getDao()->obterComRestricoes( $queryParams );
     }
 }

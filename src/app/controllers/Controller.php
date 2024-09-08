@@ -6,6 +6,7 @@ use app\exceptions\CampoNaoEnviadoException;
 use app\models\Model;
 use app\services\Service;
 use app\traits\ConversorDados;
+use core\QueryParams;
 use DateTime;
 use http\Request;
 use http\Response;
@@ -22,11 +23,11 @@ abstract class Controller {
         $this->setService( $service );
     }
 
-    protected function getService(){
+    public function getService(){
         return $this->service;
     }
 
-    protected function setService( Service $service ){
+    public function setService( Service $service ){
         $this->service = $service;
     }
 
@@ -107,7 +108,7 @@ abstract class Controller {
         return $this->getService()->obterComId( $id );
     }
 
-    public function obterComRestricoes( array $restricoes = [] ){
-        return $this->getService()->obterComRestricoes( $restricoes );
+    public function obterComRestricoes( QueryParams $queryParams ){
+        return $this->getService()->obterComRestricoes( $queryParams );
     }
 }

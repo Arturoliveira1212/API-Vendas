@@ -3,6 +3,7 @@
 namespace app\dao;
 
 use app\models\Categoria;
+use core\QueryParams;
 
 class CategoriaDAO extends DAOEmBDR {
     public function __construct(){
@@ -27,20 +28,40 @@ class CategoriaDAO extends DAOEmBDR {
         return $this->converterEmArray( $categoria );
     }
 
-    protected function obterQuery( array $restricoes, array &$parametros ){
+    protected function obterQuery( QueryParams $queryParams, array &$parametros ){
         $nomeTabela = $this->nomeTabela();
 
         $select = "SELECT * FROM {$nomeTabela}";
         $where = ' WHERE ativo = 1 ';
         $join = '';
+        $orderBy = '';
+        $limit = '';
+        $offset = '';
 
-        if( isset( $restricoes['id'] ) ){
-            $where .= " AND $nomeTabela.id = :id";
-            $parametros['id'] = $restricoes['id'];
+        $restricoes = $queryParams->getRestricoes();
+        if( ! empty( $restricoes ) ){
+            if( isset( $restricoes['id'] ) ){
+                $where .= " AND $nomeTabela.id = :id";
+                $parametros['id'] = $restricoes['id'];
+            }
         }
 
-        $comando = $select . $join . $where;
+        $orderByQuery = $queryParams->getOrderBy();
+        if( ! empty( $orderByQuery ) ){
+            $orderBy = " ORDER BY {$orderByQuery}";
+        }
 
+        $limitQuery = $queryParams->getLimit();
+        if( ! empty( $limitQuery ) && is_numeric( $limitQuery ) ){
+            $limit = " LIMIT {$limitQuery} ";
+
+            $offsetQuery = $queryParams->getOffset();
+            if( ! empty( $offsetQuery ) && is_numeric( $offsetQuery ) ){
+                $offset = " OFFSET {$offsetQuery} ";
+            }
+        }
+
+        $comando = $select . $join . $where . $orderBy . $limit . $offset;
         return $comando;
     }
 
