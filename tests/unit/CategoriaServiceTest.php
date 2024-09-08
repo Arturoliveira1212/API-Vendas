@@ -6,6 +6,7 @@ use app\dao\DAOEmBDR;
 use app\exceptions\ServiceException;
 use app\models\Categoria;
 use app\services\CategoriaService;
+use core\QueryParams;
 use PHPUnit\Framework\TestCase;
 
 class CategoriaServiceTest extends TestCase {
@@ -140,10 +141,10 @@ class CategoriaServiceTest extends TestCase {
     }
 
     public function testObtemComSucessoCategoriasComRestricao(){
-        $restricoes = ['campo' => 'valor'];
-        $this->dao->method('obterComRestricoes')->with($restricoes)->willReturn([]);
+        $queryParams = new QueryParams( ['campo' => 'valor'] );
+        $this->dao->method('obterComRestricoes')->with($queryParams)->willReturn([]);
 
-        $resultado = $this->service->obterComRestricoes($restricoes);
+        $resultado = $this->service->obterComRestricoes($queryParams);
 
         $this->assertIsArray( $resultado );
     }
