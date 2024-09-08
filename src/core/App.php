@@ -3,11 +3,15 @@
 namespace core;
 
 use app\controllers\Controller;
+use app\exceptions\CampoNaoEnviadoException;
 use core\ClassFactory;
 use app\exceptions\NaoEncontradoException;
+use app\exceptions\ServiceException;
+use Exception;
 use http\Request;
 use http\Response;
 use router\Router;
+use Throwable;
 
 class App {
     private Request $request;
@@ -19,27 +23,36 @@ class App {
     }
 
     public function executar(){
-        $uri = $this->request->uri();
-        $metodoRequisicao = $this->request->metodo();
-        $informacoesRota = $this->obterInformacoesRota( $uri, $metodoRequisicao );
-        if( empty( $informacoesRota ) ){
-            throw new NaoEncontradoException( 'Recurso não encontrado.' );
+        try {
+            $uri = $this->request->uri();
+            $metodoRequisicao = $this->request->metodo();
+            $informacoesRota = $this->obterInformacoesRota( $uri, $metodoRequisicao );
+            if( empty( $informacoesRota ) ){
+                throw new NaoEncontradoException( 'Rota não encontrada.' );
+            }
+
+            list( $nomeController, $metodo ) = explode( '@', array_values( $informacoesRota )[0] );
+
+            /** @var Controller */
+            $controller = ClassFactory::makeController( $nomeController );
+            $controller->setRequest( $this->request );
+            $controller->setResponse( $this->response );
+
+            if( ! method_exists( $controller, $metodo ) ){
+                throw new Exception( 'Método não encontrado.' );
+            }
+
+            $parametros = $this->obterParametrosRota( $informacoesRota, $uri );
+            $controller->$metodo( $parametros );
+        } catch( NaoEncontradoException $e ){
+            $this->response->recursoNaoEncontrado( $e );
+        } catch( CampoNaoEnviadoException $e ){
+            $this->response->campoNaoEnviado( $e );
+        } catch( ServiceException $e ){
+            $this->response->erroAoSalvar( $e );
+        } catch( Throwable $e ){
+            $this->response->erroInternoAPI();
         }
-
-        list( $nomeController, $metodo ) = explode( '@', array_values( $informacoesRota )[0] );
-
-        /** @var Controller */
-        $controller = ClassFactory::makeController( $nomeController );
-        $controller->setRequest( $this->request );
-        $controller->setResponse( $this->response );
-
-        if( ! method_exists( $controller, $metodo ) ){
-            throw new NaoEncontradoException( 'Método não encontrado.' );
-        }
-
-        $parametros = $this->obterParametrosRota( $informacoesRota, $uri );
-
-        $controller->$metodo( $parametros );
     }
 
     /**
