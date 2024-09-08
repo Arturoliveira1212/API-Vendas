@@ -2,6 +2,7 @@
 
 namespace app\dao;
 
+use app\models\Model;
 use app\traits\ConversorDados;
 
 abstract class DAOEmBDR implements DAO {
@@ -18,9 +19,9 @@ abstract class DAOEmBDR implements DAO {
     }
 
     abstract protected function nomeTabela();
-    abstract protected function adicionarNovo( $objeto );
-    abstract protected function atualizar( $objeto );
-    abstract protected function parametros( $objeto );
+    abstract protected function adicionarNovo( Model $objeto );
+    abstract protected function atualizar( Model $objeto );
+    abstract protected function parametros( Model $objeto );
     abstract protected function obterQuery( array $restricoes, array &$parametros );
     abstract protected function transformarEmObjeto( array $linhas );
 

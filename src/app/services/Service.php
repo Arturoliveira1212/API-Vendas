@@ -5,7 +5,6 @@ namespace app\services;
 use app\dao\DAO;
 use app\exceptions\ServiceException;
 use app\models\Model;
-use core\ClassFactory;
 
 abstract class Service {
     protected DAO $dao;

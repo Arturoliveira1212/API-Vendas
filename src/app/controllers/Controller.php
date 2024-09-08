@@ -49,6 +49,10 @@ abstract class Controller {
     abstract protected function criar( array $corpoRequisicao );
 
     protected function verificaEnvio( array $campos, array $corpoRequisicao ){
+        if( empty( $corpoRequisicao ) ){
+            throw new CampoNaoEnviadoException( 'Corpo requisição inválido.' );
+        }
+
         foreach( $campos as $campo ){
             if( ! isset( $corpoRequisicao[ $campo ] ) ){
                 throw new CampoNaoEnviadoException( "$campo não enviado." );
@@ -64,7 +68,7 @@ abstract class Controller {
                     try{
                         $objeto->$metodo( $corpoRequisicao[ $campo ] );
                     } catch( Throwable $e ){
-                        throw new CampoNaoEnviadoException( "$campo não enviado." );
+                        throw new CampoNaoEnviadoException( "Corpo requisição inválido." );
                     }
                 }
             }
