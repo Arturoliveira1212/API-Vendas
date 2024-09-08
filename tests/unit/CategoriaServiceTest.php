@@ -2,14 +2,11 @@
 
 // namespace tests\unit;
 
-use app\dao\CategoriaDAO;
 use app\dao\DAOEmBDR;
 use app\exceptions\ServiceException;
 use app\models\Categoria;
 use app\services\CategoriaService;
 use PHPUnit\Framework\TestCase;
-
-use function PHPUnit\Framework\assertEquals;
 
 class CategoriaServiceTest extends TestCase {
     private $service;
@@ -20,7 +17,7 @@ class CategoriaServiceTest extends TestCase {
         $this->service = new CategoriaService( $this->dao );
     }
 
-    public function testLancaExceptionSalvarCategoriaComNomeNaoEnviado(){
+    public function testLancaExceptionAoSalvarCategoriaComNomeNaoEnviado(){
         $categoria = new Categoria();
         $categoria->setId( 1 );
         $categoria->setNome( '' );
@@ -38,7 +35,7 @@ class CategoriaServiceTest extends TestCase {
         }
     }
 
-    public function testSalvarCategoriaComDescricaoNaoEnviada(){
+    public function testLancaExceptionAoSalvarCategoriaComDescricaoNaoEnviada(){
         $categoria = new Categoria();
         $categoria->setId( 1 );
         $categoria->setNome( 'Nome válido' );
@@ -56,7 +53,7 @@ class CategoriaServiceTest extends TestCase {
         }
     }
 
-    public function testSalvarCategoriaComNomeComTamanhoMaiorQueOPermitido(){
+    public function testLancaExceptionAoSalvarCategoriaComNomeComTamanhoMaiorQueOPermitido(){
         $categoria = new Categoria();
         $categoria->setId( 1 );
         $categoria->setNome( str_repeat( 'a', Categoria::TAMANHO_MAXIMO_NOME + 1 ) );
@@ -74,7 +71,7 @@ class CategoriaServiceTest extends TestCase {
         }
     }
 
-    public function testSalvarCategoriaComNomeComTamanhoIgualAoPermitido(){
+    public function testSalvaComSucessoCategoriaComNomeComTamanhoIgualAoPermitido(){
         $categoria = new Categoria();
         $categoria->setId( 1 );
         $categoria->setNome( str_repeat( 'a', Categoria::TAMANHO_MAXIMO_NOME ) );
@@ -85,10 +82,10 @@ class CategoriaServiceTest extends TestCase {
 
         $resultado = $this->service->salvar( $categoria );
 
-        assertEquals( $resultado, $idCadastrado );
+        $this->assertEquals( $resultado, $idCadastrado );
     }
 
-    public function testSalvarCategoriaComDescricaoComTamanhoMaiorQueOPermitido(){
+    public function testLancaExceptionAoSalvarCategoriaComDescricaoComTamanhoMaiorQueOPermitido(){
         $categoria = new Categoria();
         $categoria->setId( 1 );
         $categoria->setNome( 'Nome válido.' );
@@ -106,17 +103,68 @@ class CategoriaServiceTest extends TestCase {
         }
     }
 
-    public function testSalvarCategoriaComDescricaoComTamanhoIgualAoPermitido(){
+    public function testSalvaComSucessoCategoriaComDescricaoComTamanhoIgualAoPermitido(){
         $categoria = new Categoria();
         $categoria->setId( 1 );
         $categoria->setNome( 'Nome válido.' );
-        $categoria->setDescricao(  str_repeat( 'a', Categoria::TAMANHO_MAXIMO_DESCRICAO ) );
+        $categoria->setDescricao( str_repeat( 'a', Categoria::TAMANHO_MAXIMO_DESCRICAO ) );
 
         $idCadastrado = 1;
         $this->dao->method('salvar')->willReturn( $idCadastrado );
 
         $resultado = $this->service->salvar( $categoria );
 
-        assertEquals( $resultado, $idCadastrado );
+        $this->assertEquals( $resultado, $idCadastrado );
+    }
+
+    public function testObtemComSucessoCategoria(){
+        $categoria = new Categoria();
+        $categoria->setId( 1 );
+        $categoria->setNome( 'Nome válido.' );
+        $categoria->setDescricao( 'Descrição válida.' );
+
+        $this->dao->method('obterComId')->willReturn( $categoria );
+
+        $categoriaObtida = $this->service->obterComId( $categoria->getId() );
+
+        $this->assertInstanceOf( Categoria::class, $categoriaObtida );
+        $this->assertEquals( $categoria->getId(), $categoriaObtida->getId() );
+    }
+
+    public function testObtemComSucessoCategoriaNula(){
+        $this->dao->method('obterComId')->willReturn( null );
+
+        $categoriaObtida = $this->service->obterComId( 1 );
+
+        $this->assertNull( $categoriaObtida );
+    }
+
+    public function testObtemComSucessoCategoriasComRestricao(){
+        $restricoes = ['campo' => 'valor'];
+        $this->dao->method('obterComRestricoes')->with($restricoes)->willReturn([]);
+
+        $resultado = $this->service->obterComRestricoes($restricoes);
+
+        $this->assertIsArray( $resultado );
+    }
+
+    public function testDesativaComSucessoCategoriaComId(){
+        $id = 1;
+        $this->dao->method('desativarComId')->with($id)->willReturn( 1 );
+
+        $resultado = $this->service->desativarComId($id);
+
+        $this->assertIsInt( $resultado );
+        $this->assertEquals( $resultado, 1 );
+    }
+
+    public function testDesativaComSucessoCategoriaInexistente(){
+        $id = 1;
+        $this->dao->method('desativarComId')->with($id)->willReturn( 0 );
+
+        $resultado = $this->service->desativarComId($id);
+
+        $this->assertIsInt( $resultado );
+        $this->assertEquals( $resultado, 0 );
     }
 }
