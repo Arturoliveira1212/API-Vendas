@@ -1,218 +1,229 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use app\builders\CategoriaBuilder;
+use app\builders\RequestBuilder;
 use app\controllers\CategoriaController;
 use app\exceptions\CampoNaoEnviadoException;
 use app\exceptions\NaoEncontradoException;
-use app\models\Categoria;
 use app\services\CategoriaService;
-use http\Response;
-use http\Request;
+use core\Response;
+use http\HttpStatusCode;
 
 class CategoriaControllerTest extends TestCase {
     private $controller;
     private $service;
-    private $request;
-    private $response;
 
     protected function setUp() :void {
         $this->service = $this->createMock( CategoriaService::class );
-        $this->request = $this->createMock( Request::class );
-        $this->response = $this->createMock( Response::class );
-
         $this->controller = new CategoriaController( $this->service );
-        $this->controller->setRequest( $this->request );
-        $this->controller->setResponse( $this->response );
     }
 
     public function testLancaExceptionAoEnviarCorpoRequisicaoVazioParaCadastro(){
-        $this->request->method('corpoRequisicao')->willReturn( [] );
-
         $this->expectException( CampoNaoEnviadoException::class );
-        $this->expectExceptionMessage('Corpo requisição inválido.');
+        $this->expectExceptionMessage( 'Corpo requisição inválido.' );
 
-        $this->controller->cadastrar();
+        $request = RequestBuilder::novo()->comCorpoRequisicao( [] )->build();
+        $this->controller->cadastrar( $request );
     }
 
     public function testLancaExceptionAoNaoEnviarNomeDaCategoriaParaCadastro(){
-        $this->request->method('corpoRequisicao')->willReturn( [
-            'descricao' => 'Descrição válida.'
-        ] );
-
         $this->expectException( CampoNaoEnviadoException::class );
-        $this->expectExceptionMessage('nome não enviado.');
+        $this->expectExceptionMessage( 'nome não enviado.' );
 
-        $this->controller->cadastrar();
+        $corpoRequisicao = [
+            'descricao' => 'Descrição válida.'
+        ];
+        $request = RequestBuilder::novo()->comCorpoRequisicao( $corpoRequisicao )->build();
+        $this->controller->cadastrar( $request );
     }
 
     public function testLancaExceptionAoNaoEnviarDescricaoDaCategoriaParaCadastro(){
-        $this->request->method('corpoRequisicao')->willReturn( [
-            'nome' => 'Nome válido.'
-        ] );
-
         $this->expectException( CampoNaoEnviadoException::class );
-        $this->expectExceptionMessage('descricao não enviado.');
+        $this->expectExceptionMessage( 'descricao não enviado.' );
 
-        $this->controller->cadastrar();
+        $corpoRequisicao = [
+            'nome' => 'Nome válido.'
+        ];
+        $request = RequestBuilder::novo()->comCorpoRequisicao( $corpoRequisicao )->build();
+        $this->controller->cadastrar( $request );
     }
 
     public function testCadastraComSucessoCategoria(){
-        $this->request->method('corpoRequisicao')->willReturn( [
+        $idCadastrado = 1;
+        $this->service->method('salvar')->willReturn( $idCadastrado );
+
+        $corpoRequisicao = [
             'nome' => 'Nome válido',
             'descricao' => 'Descrição válida.'
-        ] );
-        $this->service->method('salvar')->willReturn( 1 );
+        ];
+        $request = RequestBuilder::novo()->comCorpoRequisicao( $corpoRequisicao )->build();
+        $response = $this->controller->cadastrar( $request );
 
-        // Verifica se método recursoCriado vai ser chamado passando exatamente os parâmetros.
-        $this->response->expects($this->once())->method('recursoCriado')->with( 1, 'Categoria cadastrada com sucesso.' );
+        $this->assertNotEmpty( $response );
+        $this->assertInstanceOf( Response::class, $response );
 
-        $this->controller->cadastrar();
+        $this->assertEquals( $response->getStatusCode(), HttpStatusCode::CREATED );
+        $this->assertEquals( $response->getData(), [ 'id' => $idCadastrado ] );
+        $this->assertEquals( $response->getMessage(), 'Categoria cadastrada com sucesso.' );
     }
 
     public function testLancaExceptionAoEnviarCorpoRequisicaoVazioParaAtualizacao(){
-        $this->service->method('obterComId')->willReturn( new Categoria() );
-
-        $this->request->method('corpoRequisicao')->willReturn( [] );
+        $this->service->method('obterComId')->willReturn( CategoriaBuilder::novo()->build() );
 
         $this->expectException( CampoNaoEnviadoException::class );
-        $this->expectExceptionMessage('Corpo requisição inválido.');
+        $this->expectExceptionMessage( 'Corpo requisição inválido.' );
 
-        $this->controller->atualizar( [
+        $corpoRequisicao = [];
+        $parametrosRota = [
             'categorias' => 1
-        ] );
+        ];
+        $request = RequestBuilder::novo()->comCorpoRequisicao( $corpoRequisicao )->comParametrosRota( $parametrosRota )->build();
+        $this->controller->atualizar( $request );
     }
 
     public function testLancaExceptionAoTentarAtualizarCategoriaInexistente(){
         $this->service->method('obterComId')->willReturn( null );
 
         $this->expectException( NaoEncontradoException::class );
-        $this->expectExceptionMessage('Categoria não encontrada.');
+        $this->expectExceptionMessage( 'Categoria não encontrada.' );
 
-        $this->controller->atualizar( [
+        $parametrosRota = [
             'categorias' => 1
-        ] );
+        ];
+        $request = RequestBuilder::novo()->comParametrosRota( $parametrosRota )->build();
+        $this->controller->atualizar( $request );
     }
 
     public function testLancaExceptionAoNaoEnviarNomeDaCategoriaParaAtualizacao(){
-        $this->service->method('obterComId')->willReturn( new Categoria() );
-
-        $this->request->method('corpoRequisicao')->willReturn( [
-            'descricao' => 'Descrição válida.'
-        ] );
+        $this->service->method('obterComId')->willReturn( CategoriaBuilder::novo()->build() );
 
         $this->expectException( CampoNaoEnviadoException::class );
-        $this->expectExceptionMessage('nome não enviado.');
+        $this->expectExceptionMessage( 'nome não enviado.' );
 
-        $this->controller->atualizar( [
+        $corpoRequisicao = [
+            'descricao' => 'Descrição válida.'
+        ];
+        $parametrosRota = [
             'categorias' => 1
-        ] );
+        ];
+        $request = RequestBuilder::novo()->comCorpoRequisicao( $corpoRequisicao )->comParametrosRota( $parametrosRota )->build();
+        $this->controller->atualizar( $request );
     }
 
     public function testLancaExceptionAoNaoEnviarDescricaoDaCategoriaParaAtualizacao(){
-        $this->service->method('obterComId')->willReturn( new Categoria() );
-
-        $this->request->method('corpoRequisicao')->willReturn( [
-            'nome' => 'Nome válido.'
-        ] );
+        $this->service->method('obterComId')->willReturn( CategoriaBuilder::novo()->build() );
 
         $this->expectException( CampoNaoEnviadoException::class );
-        $this->expectExceptionMessage('descricao não enviado.');
+        $this->expectExceptionMessage( 'descricao não enviado.' );
 
-        $this->controller->atualizar( [
+        $corpoRequisicao = [
+            'nome' => 'Nome válido.'
+        ];
+        $parametrosRota = [
             'categorias' => 1
-        ] );
+        ];
+        $request = RequestBuilder::novo()->comCorpoRequisicao( $corpoRequisicao )->comParametrosRota( $parametrosRota )->build();
+        $this->controller->atualizar( $request );
     }
 
     public function testAtualizaComSucessoCategoria(){
-        $this->service->method('obterComId')->willReturn( new Categoria() );
+        $this->service->method('obterComId')->willReturn( CategoriaBuilder::novo()->build() );
 
-        $this->request->method('corpoRequisicao')->willReturn( [
+        $corpoRequisicao = [
             'nome' => 'Nome válido',
             'descricao' => 'Descrição válida.'
-        ] );
-
-        $this->response->expects($this->once())->method('recursoAlterado')->willReturn( 'Categoria cadastrada com sucesso.' );
-
-        $this->controller->atualizar( [
+        ];
+        $parametrosRota = [
             'categorias' => 1
-        ] );
+        ];
+        $request = RequestBuilder::novo()->comCorpoRequisicao( $corpoRequisicao )->comParametrosRota( $parametrosRota )->build();
+        $response = $this->controller->atualizar( $request );
+
+        $this->assertNotEmpty( $response );
+        $this->assertInstanceOf( Response::class, $response );
+
+        $this->assertEquals( $response->getStatusCode(), HttpStatusCode::OK );
+        $this->assertEquals( $response->getMessage(), 'Categoria atualizada com sucesso.' );
+        $this->assertEquals( $response->getData(), [] );
     }
 
-    // public function testCadastraComSucessoCategoria(){
-    //     $dadosCategoria = [
-    //         'nome' => 'Categoria 1',
-    //         'descricao' => 'Descrição da categoria'
-    //     ];
+    public function testLancaExceptionAoTentarExcluirCategoriaInexistente(){
+        $this->service->method('obterComId')->willReturn( null );
 
-    //     // Simula o serviço retornando um ID após salvar
-    //     $this->service->method('salvar')->willReturn(1);
+        $this->expectException( NaoEncontradoException::class );
+        $this->expectExceptionMessage( 'Categoria não encontrada' );
 
-    //     // Mock do corpo da requisição
-    //     $requestMock = $this->getMockBuilder( Request::class )->disableOriginalConstructor()->getMock();
-    //     $requestMock->method('corpoRequisicao')->willReturn($dadosCategoria);
+        $parametrosRota = [
+            'categorias' => 1
+        ];
+        $request = RequestBuilder::novo()->comParametrosRota( $parametrosRota )->build();
+        $this->controller->excluir( $request );
+    }
 
-    //     $this->controller->setRequest($requestMock);
+    public function testExcluiComSucessoCategoria(){
+        $this->service->method('obterComId')->willReturn( CategoriaBuilder::novo()->build() );
 
-    //     // Espera que o método recursoCriado seja chamado
-    //     $this->response->expects($this->once())->method('recursoCriado')->with( $this->equalTo(1), $this->equalTo('Categoria cadastrada com sucesso.') );
+        $parametrosRota = [
+            'categorias' => 1
+        ];
+        $request = RequestBuilder::novo()->comParametrosRota( $parametrosRota )->build();
+        $response = $this->controller->excluir( $request );
 
-    //     // Executa o método cadastrar da controller
-    //     $this->controller->cadastrar();
-    // }
+        $this->assertNotEmpty( $response );
+        $this->assertInstanceOf( Response::class, $response );
 
-    // public function testCadastrarCampoNaoEnviado(){
-    //     // Simula uma exceção de campo não enviado
-    //     $this->service->method('salvar')->will($this->throwException(new CampoNaoEnviadoException('Campo não enviado')));
+        $this->assertEquals( $response->getStatusCode(), HttpStatusCode::NO_CONTENT );
+        $this->assertEquals( $response->getMessage(), '' );
+        $this->assertEquals( $response->getData(), [] );
+    }
 
-    //     // Mock do corpo da requisição com campo ausente
-    //     $requestMock = $this->getMockBuilder('http\Request')->disableOriginalConstructor()->getMock();
-    //     $requestMock->method('corpoRequisicao')->willReturn([]);
+    public function testObtemTodasAsCategoriasComSucesso(){
+        $categorias = [
+            CategoriaBuilder::novo()->comId( 1 )->comNome( 'Categoria 1' )->build(),
+            CategoriaBuilder::novo()->comId( 2 )->comNome( 'Categoria 2' )->build()
+        ];
+        $this->service->method('obterComRestricoes')->willReturn( $categorias );
 
-    //     $this->controller->setRequest($requestMock);
+        $request = RequestBuilder::novo()->build();
+        $response = $this->controller->listarTodos( $request );
 
-    //     // Espera que o método campoNaoEnviado seja chamado com a exceção
-    //     $this->response->expects($this->once())->method('campoNaoEnviado')->with($this->isInstanceOf(CampoNaoEnviadoException::class));
+        $this->assertNotEmpty( $response );
+        $this->assertInstanceOf( Response::class, $response );
 
-    //     // Executa o método cadastrar da controller
-    //     $this->controller->cadastrar();
-    // }
+        $this->assertEquals( $response->getStatusCode(), HttpStatusCode::OK );
+        $this->assertEquals( $response->getMessage(), '' );
+        $this->assertEquals( $response->getData(), $categorias );
+    }
 
-    // public function testAtualizarComSucesso(){
-    //     $dadosCategoria = ['nome' => 'Categoria Atualizada', 'descricao' => 'Descrição atualizada'];
-    //     $idCategoria = 1;
+    public function testLancaExceptionAoTentarObterComIdCategoriaInexistente(){
+        $this->service->method('obterComId')->willReturn( null );
 
-    //     // Mock do serviço retornando uma categoria existente
-    //     $this->service->method('obterComId')->willReturn(new Categoria());
+        $this->expectException( NaoEncontradoException::class );
+        $this->expectExceptionMessage( 'Categoria não encontrada' );
 
-    //     // Simula o serviço retornando um ID após salvar
-    //     $this->service->method('salvar')->willReturn($idCategoria);
+        $parametrosRota = [
+            'categorias' => 1
+        ];
+        $request = RequestBuilder::novo()->comParametrosRota( $parametrosRota )->build();
+        $this->controller->listarComId( $request );
+    }
 
-    //     // Mock do corpo da requisição
-    //     $requestMock = $this->getMockBuilder('http\Request')->disableOriginalConstructor()->getMock();
-    //     $requestMock->method('corpoRequisicao')->willReturn($dadosCategoria);
+    public function testObtemComSucessoCategoriaComId(){
+        $categoria = CategoriaBuilder::novo()->build();
+        $this->service->method('obterComId')->willReturn( $categoria );
 
-    //     $this->controller->setRequest($requestMock);
+        $parametrosRota = [
+            'categorias' => 1
+        ];
+        $request = RequestBuilder::novo()->comParametrosRota( $parametrosRota )->build();
+        $response = $this->controller->listarComId( $request );
 
-    //     // Espera que o método recursoAlterado seja chamado
-    //     $this->response->expects($this->once())->method('recursoAlterado')->with($this->equalTo('Categoria atualizada com sucesso.'));
+        $this->assertNotEmpty( $response );
+        $this->assertInstanceOf( Response::class, $response );
 
-    //     // Executa o método atualizar da controller
-    //     $this->controller->atualizar(['categorias' => $idCategoria]);
-    // }
-
-    // public function testExcluirCategoriaNaoEncontrada(){
-    //     $idCategoria = 1;
-
-    //     // Simula o serviço retornando uma categoria não encontrada
-    //     // $this->service->method('obterComId')->willThrowException(new NaoEncontradoException('Categoria não encontrada.'));
-    //     $this->service->method('obterComId')->willReturn(null);
-
-    //     $this->expectException( NaoEncontradoException::class );;
-
-    //     // Executa o método excluir da controller
-    //     $this->controller->excluir(['categorias' => $idCategoria]);
-
-    //     // Espera que o método recursoNaoEncontrado seja chamado com a exceção
-    //     $this->response->expects($this->once())->method('recursoNaoEncontrado')->with($this->isInstanceOf(NaoEncontradoException::class));
-    // }
+        $this->assertEquals( $response->getStatusCode(), HttpStatusCode::OK );
+        $this->assertEquals( $response->getMessage(), '' );
+        $this->assertEquals( $response->getData(), [$categoria] );
+    }
 }
