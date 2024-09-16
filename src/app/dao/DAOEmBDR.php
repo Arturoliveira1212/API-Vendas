@@ -44,9 +44,9 @@ abstract class DAOEmBDR implements DAO {
         return $this->getBancoDados()->existe( $this->nomeTabela(), $campo, $valor );
     }
 
-    public function obterComId( $id ){
-        $parametros = [];
-        $comando = "SELECT * FROM {$this->nomeTabela()} WHERE id = :id";
+    public function obterComId( int $id ){
+        $comando = "SELECT * FROM {$this->nomeTabela()} WHERE id = :id AND ativo = :ativo";
+        $parametros = [ 'id' => $id, 'ativo' => true ];
         $objetos = $this->obterObjetos( $comando, [ $this, 'transformarEmObjeto' ], $parametros );
         return ! empty( $objetos ) ? array_shift( $objetos ) : null;
     }
