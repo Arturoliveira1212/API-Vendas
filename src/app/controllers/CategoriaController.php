@@ -5,10 +5,13 @@ namespace app\controllers;
 use app\exceptions\NaoEncontradoException;
 use app\models\Categoria;
 use core\QueryParams;
+use core\Request;
+use core\Response;
+use http\HttpStatusCode;
 
 class CategoriaController extends Controller {
 
-    protected function criar( array $corpoRequisicao ){
+    protected function criar( array $corpoRequisicao ) :Categoria {
         $categoria = new Categoria();
 
         $campos = [ 'nome', 'descricao' ];
@@ -18,53 +21,53 @@ class CategoriaController extends Controller {
         return $categoria;
     }
 
-    public function cadastrar(){
-        $corpoRequisicao = $this->getRequest()->corpoRequisicao();
-        $categoria = $this->criar( $corpoRequisicao );
-        $id = $this->salvar( $categoria );
+    public function cadastrar( Request $request ) :Response {
+        $categoria = $this->criar( $request->getCorpoRequisicao() );
+        $id = $this->service->salvar( $categoria );
 
-        $this->getResponse()->recursoCriado( $id, 'Categoria cadastrada com sucesso.' );
+        return new Response( HttpStatusCode::CREATED, 'Categoria cadastrada com sucesso.', [ 'id' => $id ] );
     }
 
-    public function atualizar( array $parametros ){
-        $id = intval( $parametros['categorias'] );
-        $categoria = $this->obterComId( $id );
+    public function atualizar( Request $request ) :Response {
+        $id = intval( $request->getParametrosRota()['categorias'] );
+        $categoria = $this->getService()->obterComId( $id );
         if( ! $categoria instanceof Categoria ){
             throw new NaoEncontradoException( 'Categoria não encontrada.' );
         }
 
-        $corpoRequisicao = $this->getRequest()->corpoRequisicao();
-        $categoria = $this->criar( $corpoRequisicao );
+        $categoria = $this->criar( $request->getCorpoRequisicao() );
         $categoria->setId( $id );
-        $id = $this->salvar( $categoria );
+        $id = $this->getService()->salvar( $categoria );
 
-        $this->getResponse()->recursoAlterado( 'Categoria atualizada com sucesso.' );
+        return new Response( HttpStatusCode::OK, 'Categoria atualizada com sucesso.' );
     }
 
-    public function excluir( array $parametros ){
-        $id = intval( $parametros['categorias'] );
-        $categoria = $this->obterComId( $id );
+    public function excluir( Request $request ) :Response {
+        $id = intval( $request->getParametrosRota()['categorias'] );
+        $categoria = $this->getService()->obterComId( $id );
         if( ! $categoria instanceof Categoria ){
             throw new NaoEncontradoException( 'Categoria não encontrada.' );
         }
 
-        $this->desativarComId( $id );
-        $this->getResponse()->recursoRemovido();
+        $this->getService()->desativarComId( $id );
+
+        return new Response( HttpStatusCode::NO_CONTENT );
     }
 
-    public function listarTodos(){
-        $queryParams = new QueryParams( $this->getRequest()->parametrosRequisicao() );
-        $categorias = $this->obterComRestricoes( $queryParams );
-        $this->getResponse()->listarDados( $categorias );
+    public function listarTodos( Request $request ) :Response {
+        $queryParams = new QueryParams( $request->getParametrosRequisicao() );
+        $categorias = $this->getService()->obterComRestricoes( $queryParams );
+
+        return new Response( HttpStatusCode::OK, '', $categorias );
     }
 
-    public function listarComId( array $parametros ){
-        $id = intval( $parametros['categorias'] );
-        $categoria = $this->obterComId( $id );
+    public function listarComId( Request $request ) :Response {
+        $id = intval( $request->getParametrosRota()['categorias'] );
+        $categoria = $this->getService()->obterComId( $id );
         if( ! $categoria instanceof Categoria ){
             throw new NaoEncontradoException( 'Categoria não encontrada.' );
         }
 
-        $this->getResponse()->listarDados( [ $categoria ] );
+        return new Response( HttpStatusCode::OK, '', [ $categoria ] );
     }
 }

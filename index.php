@@ -1,11 +1,10 @@
 <?php
 
-
 require_once './bootstrap.php';
 
 use core\App;
-use http\Request;
-use http\Response;
+use core\Request;
+use core\Response;
 
 $request = new Request();
 $response = new Response();

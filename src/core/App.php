@@ -8,8 +8,7 @@ use core\ClassFactory;
 use app\exceptions\NaoEncontradoException;
 use app\exceptions\ServiceException;
 use Exception;
-use http\Request;
-use http\Response;
+use http\HttpStatusCode;
 use router\Router;
 use Throwable;
 
@@ -24,8 +23,8 @@ class App {
 
     public function executar(){
         try {
-            $uri = $this->request->uri();
-            $metodoRequisicao = $this->request->metodo();
+            $uri = $this->request->getUri();
+            $metodoRequisicao = $this->request->getMetodoHttp();
             $informacoesRota = $this->obterInformacoesRota( $uri, $metodoRequisicao );
             if( empty( $informacoesRota ) ){
                 throw new NaoEncontradoException( 'Rota não encontrada.' );
@@ -35,24 +34,25 @@ class App {
 
             /** @var Controller */
             $controller = ClassFactory::makeController( $nomeController );
-            $controller->setRequest( $this->request );
-            $controller->setResponse( $this->response );
-
             if( ! method_exists( $controller, $metodo ) ){
                 throw new Exception( 'Método não encontrado.' );
             }
 
-            $parametros = $this->obterParametrosRota( $informacoesRota, $uri );
-            $controller->$metodo( $parametros );
+            $parametrosRota = $this->obterParametrosRota( $informacoesRota, $uri );
+            $this->request->setParametrosRota( $parametrosRota );
+
+            $this->response = $controller->$metodo( $this->request );
         } catch( NaoEncontradoException $e ){
-            $this->response->recursoNaoEncontrado( $e );
+            $this->response = new Response( HttpStatusCode::NOT_FOUND, $e->getMessage() ?? 'Conteúdo não encontrado.' );
         } catch( CampoNaoEnviadoException $e ){
-            $this->response->campoNaoEnviado( $e );
+            $this->response = new Response( HttpStatusCode::BAD_REQUEST,  $e->getMessage() ?? 'Conteúdo não encontrado.' );
         } catch( ServiceException $e ){
-            $this->response->erroAoSalvar( $e );
+            $this->response = new Response( HttpStatusCode::BAD_REQUEST, 'Houve um erro ao salvar.', json_decode( $e->getMessage(), true ) );
         } catch( Throwable $e ){
-            $this->response->erroInternoAPI();
+            $this->response = new Response( HttpStatusCode::INTERNAL_SERVER_ERROR, 'Houve um erro interno.' );
         }
+
+        $this->response->send();
     }
 
     /**

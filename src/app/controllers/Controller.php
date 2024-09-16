@@ -14,8 +14,6 @@ use Throwable;
 
 abstract class Controller {
     protected Service $service;
-    protected Request $request;
-    protected Response $response;
 
     use ConversorDados;
 
@@ -31,23 +29,7 @@ abstract class Controller {
         $this->service = $service;
     }
 
-    public function getRequest(){
-        return $this->request;
-    }
-
-    public function setRequest( Request $request ){
-        $this->request = $request;
-    }
-
-    public function getResponse(){
-        return $this->response;
-    }
-
-    public function setResponse( Response $response ){
-        $this->response = $response;
-    }
-
-    abstract protected function criar( array $corpoRequisicao );
+    abstract protected function criar( array $corpoRequisicao ) :Model;
 
     protected function verificaEnvio( array $campos, array $corpoRequisicao ){
         if( empty( $corpoRequisicao ) ){
@@ -90,25 +72,5 @@ abstract class Controller {
                 }
             }
         }
-    }
-
-    public function salvar( Model $objeto ){
-        return $this->getService()->salvar( $objeto );
-    }
-
-    public function desativarComId( int $id ){
-        return $this->getService()->desativarComId( $id );
-    }
-
-    public function existe( string $campo, string $valor ){
-        return $this->getService()->existe( $campo, $valor );
-    }
-
-    public function obterComId( int $id ){
-        return $this->getService()->obterComId( $id );
-    }
-
-    public function obterComRestricoes( QueryParams $queryParams ){
-        return $this->getService()->obterComRestricoes( $queryParams );
     }
 }
