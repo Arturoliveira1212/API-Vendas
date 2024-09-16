@@ -2,6 +2,7 @@
 
 // namespace tests\unit;
 
+use app\builders\CategoriaBuilder;
 use app\dao\DAOEmBDR;
 use app\exceptions\ServiceException;
 use app\models\Categoria;
@@ -19,10 +20,7 @@ class CategoriaServiceTest extends TestCase {
     }
 
     public function testLancaExceptionAoSalvarCategoriaComNomeNaoEnviado(){
-        $categoria = new Categoria();
-        $categoria->setId( 1 );
-        $categoria->setNome( '' );
-        $categoria->setDescricao( 'Descrição válida' );
+        $categoria = CategoriaBuilder::novo()->comId( 1 )->comNome( '' )->comDescricao( 'Descrição válida.' )->build();
 
         try {
             $this->service->salvar( $categoria );
@@ -37,10 +35,7 @@ class CategoriaServiceTest extends TestCase {
     }
 
     public function testLancaExceptionAoSalvarCategoriaComDescricaoNaoEnviada(){
-        $categoria = new Categoria();
-        $categoria->setId( 1 );
-        $categoria->setNome( 'Nome válido' );
-        $categoria->setDescricao( '' );
+        $categoria = CategoriaBuilder::novo()->comId( 1 )->comNome( 'Nome válido.' )->comDescricao( '' )->build();
 
         try {
             $this->service->salvar( $categoria );
@@ -55,10 +50,7 @@ class CategoriaServiceTest extends TestCase {
     }
 
     public function testLancaExceptionAoSalvarCategoriaComNomeComTamanhoMaiorQueOPermitido(){
-        $categoria = new Categoria();
-        $categoria->setId( 1 );
-        $categoria->setNome( str_repeat( 'a', Categoria::TAMANHO_MAXIMO_NOME + 1 ) );
-        $categoria->setDescricao( 'Descrição válida.' );
+        $categoria = CategoriaBuilder::novo()->comId( 1 )->comNome( str_repeat( 'a', Categoria::TAMANHO_MAXIMO_NOME + 1 ) )->comDescricao( 'Descrição válida.' )->build();
 
         try {
             $this->service->salvar( $categoria );
@@ -73,10 +65,7 @@ class CategoriaServiceTest extends TestCase {
     }
 
     public function testSalvaComSucessoCategoriaComNomeComTamanhoIgualAoPermitido(){
-        $categoria = new Categoria();
-        $categoria->setId( 1 );
-        $categoria->setNome( str_repeat( 'a', Categoria::TAMANHO_MAXIMO_NOME ) );
-        $categoria->setDescricao( 'Descrição válida.' );
+        $categoria = CategoriaBuilder::novo()->comId( 1 )->comNome( str_repeat( 'a', Categoria::TAMANHO_MAXIMO_NOME ) )->comDescricao( 'Descrição válida.' )->build();
 
         $idCadastrado = 1;
         $this->dao->method('salvar')->willReturn( $idCadastrado );
@@ -87,10 +76,7 @@ class CategoriaServiceTest extends TestCase {
     }
 
     public function testLancaExceptionAoSalvarCategoriaComDescricaoComTamanhoMaiorQueOPermitido(){
-        $categoria = new Categoria();
-        $categoria->setId( 1 );
-        $categoria->setNome( 'Nome válido.' );
-        $categoria->setDescricao( str_repeat( 'a', Categoria::TAMANHO_MAXIMO_DESCRICAO + 1 ) );
+        $categoria = CategoriaBuilder::novo()->comId( 1 )->comNome( 'Nome válido.' )->comDescricao( str_repeat( 'a', Categoria::TAMANHO_MAXIMO_DESCRICAO + 1 ) )->build();
 
         try {
             $this->service->salvar( $categoria );
@@ -105,10 +91,7 @@ class CategoriaServiceTest extends TestCase {
     }
 
     public function testSalvaComSucessoCategoriaComDescricaoComTamanhoIgualAoPermitido(){
-        $categoria = new Categoria();
-        $categoria->setId( 1 );
-        $categoria->setNome( 'Nome válido.' );
-        $categoria->setDescricao( str_repeat( 'a', Categoria::TAMANHO_MAXIMO_DESCRICAO ) );
+        $categoria = CategoriaBuilder::novo()->comId( 1 )->comNome( 'Nome válido.' )->comDescricao( str_repeat( 'a', Categoria::TAMANHO_MAXIMO_DESCRICAO ) )->build();
 
         $idCadastrado = 1;
         $this->dao->method('salvar')->willReturn( $idCadastrado );
@@ -119,10 +102,7 @@ class CategoriaServiceTest extends TestCase {
     }
 
     public function testObtemComSucessoCategoria(){
-        $categoria = new Categoria();
-        $categoria->setId( 1 );
-        $categoria->setNome( 'Nome válido.' );
-        $categoria->setDescricao( 'Descrição válida.' );
+        $categoria = CategoriaBuilder::novo()->comId( 1 )->comNome( 'Nome válido.' )->comDescricao( 'Descrição válida.' )->build();
 
         $this->dao->method('obterComId')->willReturn( $categoria );
 
