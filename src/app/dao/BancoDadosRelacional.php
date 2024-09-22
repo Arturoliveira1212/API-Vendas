@@ -3,6 +3,7 @@
 namespace app\dao;
 
 use core\PDOSingleton;
+use Exception;
 use PDO;
 use PDOException;
 
@@ -62,6 +63,31 @@ class BancoDadosRelacional implements BancoDados {
         }
 
         return false;
+    }
+
+    public function executarComTransacao( callable $operacao ){
+        $transacaoAtiva = $this->emTransacao();
+        $resultado = null;
+
+        try {
+            if (!$transacaoAtiva) {
+                $this->iniciarTransacao();
+            }
+
+            $resultado = $operacao();
+
+            if (!$transacaoAtiva) {
+                $this->finalizarTransacao();
+            }
+        } catch( Exception $e ){
+            if (!$transacaoAtiva) {
+                $this->desfazerTransacao();
+            }
+
+            throw $e;
+        }
+
+        return $resultado;
     }
 
     public function ultimoIdInserido(){

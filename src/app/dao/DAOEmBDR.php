@@ -27,17 +27,25 @@ abstract class DAOEmBDR implements DAO {
     abstract protected function transformarEmObjeto( array $linhas );
 
     public function salvar( $objeto ){
-        if( $objeto->getId() == BancoDadosRelacional::ID_INEXISTENTE ){
-            $this->adicionarNovo( $objeto );
-        } else {
-            $this->atualizar( $objeto );
-        }
+        $salvar = function() use ( $objeto ) {
+            if( $objeto->getId() == BancoDadosRelacional::ID_INEXISTENTE ){
+                $this->adicionarNovo( $objeto );
+            } else {
+                $this->atualizar( $objeto );
+            }
 
-        return $this->getBancoDados()->ultimoIdInserido();
+            return $this->getBancoDados()->ultimoIdInserido();
+        };
+
+        return $this->getBancoDados()->executarComTransacao( $salvar );
     }
 
     public function desativarComId( int $id ){
-        return $this->getBancoDados()->desativar( $this->nomeTabela(), $id );
+        $desativarComId = function() use ( $id ){
+            return $this->getBancoDados()->desativar( $this->nomeTabela(), $id );
+        };
+
+        return $this->getBancoDados()->executarComTransacao( $desativarComId );
     }
 
     public function existe( string $campo, string $valor ){
