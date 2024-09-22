@@ -9,8 +9,8 @@ use core\QueryParams;
 abstract class DAOEmBDR implements DAO {
     private ?BancoDadosRelacional $bancoDados = null;
 
-    public function __construct(){
-        $this->bancoDados = new BancoDadosRelacional();
+    public function __construct( BancoDadosRelacional $bancoDados ){
+        $this->bancoDados = $bancoDados;
     }
 
     use ConversorDados;

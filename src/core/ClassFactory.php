@@ -2,6 +2,7 @@
 
 namespace core;
 
+use app\dao\BancoDadosRelacional;
 use core\Controller;
 use app\services\Service;
 use app\dao\DAO;
@@ -58,6 +59,6 @@ abstract class ClassFactory {
             throw new InvalidArgumentException( "DAO $classe não encontrado." );
         }
 
-        return new $DAO();
+        return new $DAO( new BancoDadosRelacional() );
     }
 }

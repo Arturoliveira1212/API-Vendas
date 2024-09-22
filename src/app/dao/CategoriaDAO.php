@@ -6,9 +6,6 @@ use app\models\Categoria;
 use core\QueryParams;
 
 class CategoriaDAO extends DAOEmBDR {
-    public function __construct(){
-        parent::__construct();
-    }
 
     protected function nomeTabela(){
         return 'categoria';
