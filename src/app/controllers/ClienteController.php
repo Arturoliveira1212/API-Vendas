@@ -2,19 +2,16 @@
 
 namespace app\controllers;
 
-use app\exceptions\CampoNaoEnviadoException;
 use app\exceptions\NaoEncontradoException;
-use app\exceptions\ServiceException;
 use app\models\Cliente;
-use http\Request;
-use http\Response;
+use core\QueryParams;
+use core\Request;
+use core\Response;
+use http\HttpStatusCode;
 
 class ClienteController extends Controller {
-    public function __construct(){
-        parent::__construct();
-    }
 
-    protected function criar( array $corpoRequisicao ){
+    protected function criar( array $corpoRequisicao ) :Cliente {
         $cliente = new Cliente();
 
         $campos = [ 'nome', 'cpf', 'dataNascimento' ];
@@ -27,70 +24,53 @@ class ClienteController extends Controller {
         return $cliente;
     }
 
-    public function cadastrar(){
-        $erro = [];
+    public function cadastrar( Request $request ) :Response {
+        $cliente = $this->criar( $request->getCorpoRequisicao() );
+        $id = $this->getService()->salvar( $cliente );
 
-        try{
-            $corpoRequisicao = $this->getRequest()->corpoRequisicao();
-            $cliente = $this->criar( $corpoRequisicao );
-            $id = $this->getService()->salvar( $cliente, $erro );
-
-            $this->getResponse()->recursoCriado( $id, 'Cliente cadastrado com sucesso.' );
-        } catch( CampoNaoEnviadoException $e ){
-            $this->getResponse()->campoNaoEnviado( $e );
-        } catch( ServiceException $e ){
-            $this->getResponse()->erroAoSalvar( $e );
-        }
+        return new Response( HttpStatusCode::CREATED, 'Cliente cadastrado com sucesso.', [ 'id' => $id ] );
     }
 
-    public function atualizar( array $parametros ){
-        $erro = [];
-
-        try{
-            $id = intval( $parametros['clientes'] );
-            $cliente = $this->getService()->obterComId( $id );
-            if( ! $cliente instanceof Cliente ){
-                throw new NaoEncontradoException( 'Cliente não encontrado.' );
-            }
-
-            $corpoRequisicao = $this->getRequest()->corpoRequisicao();
-            $cliente = $this->criar( $corpoRequisicao );
-            $cliente->setId( $id );
-            $id = $this->getService()->salvar( $cliente, $erro );
-
-            $this->getResponse()->recursoAlterado( 'Cliente atualizado com sucesso.' );
-        } catch( NaoEncontradoException $e ){
-            throw $e;
-        } catch( CampoNaoEnviadoException $e ){
-            $this->getResponse()->campoNaoEnviado( $e );
-        } catch( ServiceException $e ){
-            $this->getResponse()->erroAoSalvar( $e );
+    public function atualizar( Request $request ) :Response {
+        $id = intval( $request->getParametrosRota()['clientes'] );
+        $cliente = $this->getService()->obterComId( $id );
+        if( ! $cliente instanceof Cliente ){
+            throw new NaoEncontradoException( 'Cliente não encontrado.' );
         }
+
+        $cliente = $this->criar( $request->getCorpoRequisicao() );
+        $cliente->setId( $id );
+        $id = $this->getService()->salvar( $cliente );
+
+        return new Response( HttpStatusCode::OK, 'Cliente atualizado com sucesso.' );
     }
 
-    public function excluir( array $parametros ){
-        $id = intval( $parametros['clientes'] );
+    public function excluir( Request $request ) :Response {
+        $id = intval( $request->getParametrosRota()['clientes'] );
         $cliente = $this->getService()->obterComId( $id );
         if( ! $cliente instanceof Cliente ){
             throw new NaoEncontradoException( 'Cliente não encontrado.' );
         }
 
         $this->getService()->desativarComId( $id );
-        $this->getResponse()->recursoRemovido();
+
+        return new Response( HttpStatusCode::NO_CONTENT );
     }
 
-    public function listarTodos(){
-        $clientes = $this->getService()->obterComRestricoes();
-        $this->getResponse()->listarDados( $clientes );
+    public function listarTodos( Request $request ) :Response {
+        $queryParams = new QueryParams( $request->getParametrosRequisicao() );
+        $clientes = $this->getService()->obterComRestricoes( $queryParams );
+
+        return new Response( HttpStatusCode::OK, '', $clientes );
     }
 
-    public function listarComId( array $parametros ){
-        $id = intval( $parametros['clientes'] );
+    public function listarComId( Request $request ) :Response {
+        $id = intval( $request->getParametrosRota()['clientes'] );
         $cliente = $this->getService()->obterComId( $id );
         if( ! $cliente instanceof Cliente ){
             throw new NaoEncontradoException( 'Cliente não encontrado.' );
         }
 
-        $this->getResponse()->listarDados( [ $cliente ] );
+        return new Response( HttpStatusCode::OK, '', [ $cliente ] );
     }
 }

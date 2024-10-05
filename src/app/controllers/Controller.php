@@ -6,10 +6,7 @@ use app\exceptions\CampoNaoEnviadoException;
 use app\models\Model;
 use app\services\Service;
 use app\traits\ConversorDados;
-use core\QueryParams;
 use DateTime;
-use http\Request;
-use http\Response;
 use Throwable;
 
 abstract class Controller {
@@ -50,9 +47,7 @@ abstract class Controller {
                 if( method_exists( $objeto, $metodo ) ){
                     try{
                         $objeto->$metodo( $corpoRequisicao[ $campo ] );
-                    } catch( Throwable $e ){
-                        throw new CampoNaoEnviadoException( "Corpo requisição inválido." );
-                    }
+                    } catch( Throwable $e ){}
                 }
             }
         }
@@ -66,8 +61,6 @@ abstract class Controller {
                     $data = DateTime::createFromFormat( 'd/m/Y', $corpoRequisicao[ $campo ] );
                     if( $data ){
                         $objeto->$metodo( $data );
-                    } else {
-                        throw new CampoNaoEnviadoException( "$campo não enviado" );
                     }
                 }
             }
