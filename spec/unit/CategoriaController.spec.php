@@ -16,14 +16,14 @@ describe('CategoriaController', function() {
     });
 
     describe( 'Cadastrar', function(){
-        it('lança exceção ao enviar corpo da requisição vazio para cadastro', function() {
+        it('Lança exceção ao enviar corpo da requisição vazio', function() {
             expect( function(){
                 $request = RequestBuilder::novo()->comCorpoRequisicao([])->build();
                 $this->controller->cadastrar($request);
             })->toThrow( new CampoNaoEnviadoException('Corpo requisição inválido.') );
         });
 
-        it('lança exceção ao não enviar nome da categoria para cadastro', function() {
+        it('Lança exceção ao não enviar nome da categoria', function() {
             expect(function() {
                 $corpoRequisicao = ['descricao' => 'Descrição válida.'];
                 $request = RequestBuilder::novo()->comCorpoRequisicao($corpoRequisicao)->build();
@@ -31,7 +31,7 @@ describe('CategoriaController', function() {
             })->toThrow(new CampoNaoEnviadoException('nome não enviado.'));
         });
 
-        it('lança exceção ao não enviar descrição da categoria para cadastro', function() {
+        it('Lança exceção ao não enviar descrição da categoria', function() {
             expect(function() {
                 $corpoRequisicao = ['nome' => 'Nome válido.'];
                 $request = RequestBuilder::novo()->comCorpoRequisicao($corpoRequisicao)->build();
@@ -39,7 +39,7 @@ describe('CategoriaController', function() {
             })->toThrow(new CampoNaoEnviadoException('descricao não enviado.'));
         });
 
-        it('cadastra com sucesso categoria', function() {
+        it('Cadastra categoria com sucesso', function() {
             $idCadastrado = 1;
             $this->service->shouldReceive('salvar')->andReturn($idCadastrado);
 
@@ -55,7 +55,7 @@ describe('CategoriaController', function() {
     } );
 
     describe( 'Atualizar', function(){
-        it('lança exceção ao enviar corpo da requisição vazio para atualização', function() {
+        it('Lança exceção ao enviar corpo da requisição vazio', function() {
             $this->service->shouldReceive('obterComId')->andReturn(CategoriaBuilder::novo()->build());
 
             expect(function() {
@@ -66,7 +66,7 @@ describe('CategoriaController', function() {
             })->toThrow(new CampoNaoEnviadoException('Corpo requisição inválido.'));
         });
 
-        it('lança exceção ao tentar atualizar categoria inexistente', function() {
+        it('Lança exceção ao tentar atualizar categoria inexistente', function() {
             $this->service->shouldReceive('obterComId')->andReturn(null);
 
             expect(function() {
@@ -76,7 +76,7 @@ describe('CategoriaController', function() {
             })->toThrow(new NaoEncontradoException('Categoria não encontrada.'));
         });
 
-        it('lança exceção ao não enviar nome da categoria para atualização', function() {
+        it('Lança exceção ao não enviar nome da categoria', function() {
             $this->service->shouldReceive('obterComId')->andReturn(CategoriaBuilder::novo()->build());
 
             expect(function() {
@@ -87,7 +87,7 @@ describe('CategoriaController', function() {
             })->toThrow(new CampoNaoEnviadoException('nome não enviado.'));
         });
 
-        it('lança exceção ao não enviar descrição da categoria para atualização', function() {
+        it('Lança exceção ao não enviar descrição da categoria', function() {
             $this->service->shouldReceive('obterComId')->andReturn(CategoriaBuilder::novo()->build());
 
             expect(function() {
@@ -98,7 +98,7 @@ describe('CategoriaController', function() {
             })->toThrow(new CampoNaoEnviadoException('descricao não enviado.'));
         });
 
-        it('atualiza com sucesso categoria', function() {
+        it('Atualiza categoria com sucesso', function() {
             $this->service->shouldReceive('salvar')->andReturn(1);
             $this->service->shouldReceive('obterComId')->andReturn(CategoriaBuilder::novo()->build());
 
@@ -115,7 +115,7 @@ describe('CategoriaController', function() {
     } );
 
     describe( 'Excluir', function(){
-        it('lança exceção ao tentar excluir categoria inexistente', function() {
+        it('Lança exceção ao tentar excluir categoria inexistente', function() {
             $this->service->shouldReceive('obterComId')->andReturn(null);
 
             expect(function() {
@@ -125,7 +125,7 @@ describe('CategoriaController', function() {
             })->toThrow(new NaoEncontradoException('Categoria não encontrada.'));
         });
 
-        it('exclui com sucesso categoria', function() {
+        it('Exclui categoria com sucesso', function() {
             $this->service->shouldReceive('obterComId')->andReturn(CategoriaBuilder::novo()->build());
             $this->service->shouldReceive('desativarComId')->with(1)->andReturn(1);
 
@@ -141,7 +141,7 @@ describe('CategoriaController', function() {
     } );
 
     describe( 'Listar Todos', function(){
-        it('obtém todas as categorias com sucesso', function() {
+        it('Lista todos as categorias com sucesso', function() {
             $categorias = [
                 CategoriaBuilder::novo()->comId(1)->comNome('Categoria 1')->build(),
                 CategoriaBuilder::novo()->comId(2)->comNome('Categoria 2')->build()
@@ -158,7 +158,7 @@ describe('CategoriaController', function() {
     } );
 
     describe( 'Listar com Id', function(){
-        it('lança exceção ao tentar obter categoria inexistente por ID', function() {
+        it('Lança exceção ao tentar obter categoria inexistente', function() {
             $this->service->shouldReceive('obterComId')->andReturn(null);
 
             expect(function() {
@@ -168,7 +168,7 @@ describe('CategoriaController', function() {
             })->toThrow(new NaoEncontradoException('Categoria não encontrada.'));
         });
 
-        it('obtém com sucesso categoria por ID', function() {
+        it('Lista categoria com sucesso', function() {
             $categoria = CategoriaBuilder::novo()->build();
             $this->service->shouldReceive('obterComId')->andReturn($categoria);
 

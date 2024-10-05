@@ -14,7 +14,7 @@ describe( 'CategoriaDAO', function(){
     });
 
     describe( 'Salvar', function(){
-        it( 'cadastra categoria com sucesso', function(){
+        it( 'Salva categoria com sucesso', function(){
             $categoria = CategoriaBuilder::novo()->comId( BancoDadosRelacional::ID_INEXISTENTE )->comNome( 'Nome' )->comDescricao( 'Descricao' )->build();
 
             $this->bancoDados->shouldReceive('ultimoIdInserido')->andReturn(1);
@@ -35,7 +35,7 @@ describe( 'CategoriaDAO', function(){
             expect( $idInserido )->toBe(1);
         } );
 
-        it('atualiza categoria com sucesso', function() {
+        it('Atualiza categoria com sucesso', function() {
             $categoria = CategoriaBuilder::novo()->comId(1)->comNome('Nome')->comDescricao('Descricao')->build();
 
             $this->bancoDados->shouldReceive('ultimoIdInserido')->andReturn(1);
@@ -60,7 +60,7 @@ describe( 'CategoriaDAO', function(){
     } );
 
     describe('Desativar', function() {
-        it('desativa categoria com sucesso', function() {
+        it('Desativa categoria com sucesso', function() {
             $id = 1;
 
             $this->bancoDados->shouldReceive('desativar')->with('categoria', $id)->andReturn(true);
@@ -72,7 +72,7 @@ describe( 'CategoriaDAO', function(){
             expect($result)->toBe(true);
         });
 
-        it('lança exceção ao falhar ao desativar', function() {
+        it('Lança exceção ao falhar o desativar', function() {
             $id = 1;
 
             $this->bancoDados->shouldReceive('executarComTransacao')->andThrow(new Exception('Erro ao desativar'));
@@ -84,7 +84,7 @@ describe( 'CategoriaDAO', function(){
     });
 
     describe('Existe', function() {
-        it('verifica se categoria existe com sucesso', function() {
+        it('Verifica se categoria existe com sucesso', function() {
             $campo = 'nome';
             $valor = 'Nome';
 
@@ -96,7 +96,7 @@ describe( 'CategoriaDAO', function(){
     });
 
     describe('Obter com ID', function() {
-        it('obtém categoria com sucesso', function() {
+        it('Obtém categoria com sucesso', function() {
             $id = 1;
             $resultado = ['id' => 1, 'nome' => 'Nome', 'descricao' => 'Descricao'];
 
@@ -109,7 +109,7 @@ describe( 'CategoriaDAO', function(){
             expect($categoria)->toBeAnInstanceOf(Model::class); // Verifique se a classe está correta.
         });
 
-        it('retorna null se a categoria não existir', function() {
+        it('Retorna null se a categoria não existir', function() {
             $id = 999;
 
             $this->bancoDados->shouldReceive('consultar')->andReturn([]);
@@ -120,7 +120,7 @@ describe( 'CategoriaDAO', function(){
     });
 
     describe('Obter com Restrições', function() {
-        it('obtém categorias com restrições com sucesso', function() {
+        it('Obtém categorias com restrições com sucesso', function() {
             $queryParams = new QueryParams([]); // Assuma que você tem um objeto QueryParams configurado
             $resultado = [['id' => 1, 'nome' => 'Nome', 'descricao' => 'Descricao']];
 
@@ -133,7 +133,7 @@ describe( 'CategoriaDAO', function(){
     });
 
     describe('Obter Objetos', function() {
-        it('obtém objetos com sucesso', function() {
+        it('Obtém objetos com sucesso', function() {
             $comando = "SELECT * FROM tabela";
             $parametros = [];
             $resultado = [['id' => 1, 'nome' => 'Nome', 'descricao' => 'Descricao']];

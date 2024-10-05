@@ -14,7 +14,7 @@ describe('CategoriaService', function() {
     });
 
     describe( 'Salvar', function(){
-        it('lança exceção ao salvar categoria com nome não enviado', function() {
+        it('Lança exceção ao não enviar nome válido para categoria', function() {
             $categoria = CategoriaBuilder::novo()->comId(1)->comNome('')->comDescricao('Descrição válida.')->build();
 
             try {
@@ -27,7 +27,7 @@ describe('CategoriaService', function() {
             }
         });
 
-        it('lança exceção ao salvar categoria com descrição não enviada', function() {
+        it('Lança exceção ao não enviar descrição válida para categoria', function() {
             $categoria = CategoriaBuilder::novo()->comId(1)->comNome('Nome válido.')->comDescricao('')->build();
 
             try {
@@ -40,7 +40,7 @@ describe('CategoriaService', function() {
             }
         });
 
-        it('lança exceção ao salvar categoria com nome com tamanho maior que o permitido', function() {
+        it('Lança exceção ao enviar nome com tamanho maior que o permitido', function() {
             $categoria = CategoriaBuilder::novo()->comId(1)->comNome(str_repeat('a', Categoria::TAMANHO_MAXIMO_NOME + 1))->comDescricao('Descrição válida.')->build();
 
             try {
@@ -53,7 +53,7 @@ describe('CategoriaService', function() {
             }
         });
 
-        it('salva com sucesso categoria com nome com tamanho igual ao permitido', function() {
+        it('Salva categoria com sucesso ao enviar nome com tamanho igual ao permitido', function() {
             $categoria = CategoriaBuilder::novo()->comId(1)->comNome(str_repeat('a', Categoria::TAMANHO_MAXIMO_NOME))->comDescricao('Descrição válida.')->build();
 
             $idCadastrado = 1;
@@ -63,7 +63,7 @@ describe('CategoriaService', function() {
             expect($resultado)->toEqual($idCadastrado);
         });
 
-        it('lança exceção ao salvar categoria com descrição com tamanho maior que o permitido', function() {
+        it('Lança exceção ao enviar descrição com tamanho maior que o permitido', function() {
             $categoria = CategoriaBuilder::novo()->comId(1)->comNome('Nome válido.')->comDescricao(str_repeat('a', Categoria::TAMANHO_MAXIMO_DESCRICAO + 1))->build();
 
             try {
@@ -76,7 +76,7 @@ describe('CategoriaService', function() {
             }
         });
 
-        it('salva com sucesso categoria com descrição com tamanho igual ao permitido', function() {
+        it('Salva categoria com sucesso ao enviar descrição com tamanho igual ao permitido', function() {
             $categoria = CategoriaBuilder::novo()->comId(1)->comNome('Nome válido.')->comDescricao(str_repeat('a', Categoria::TAMANHO_MAXIMO_DESCRICAO))->build();
 
             $idCadastrado = 1;
@@ -88,7 +88,7 @@ describe('CategoriaService', function() {
     } );
 
     describe( 'ObterComId', function(){
-        it('obtém com sucesso categoria', function() {
+        it('Obtém categoria com sucesso', function() {
             $categoria = CategoriaBuilder::novo()->comId(1)->comNome('Nome válido.')->comDescricao('Descrição válida.')->build();
 
             $this->dao->shouldReceive('obterComId')->andReturn($categoria);
@@ -98,7 +98,7 @@ describe('CategoriaService', function() {
             expect($categoriaObtida->getId())->toEqual($categoria->getId());
         });
 
-        it('obtém com sucesso categoria nula', function() {
+        it('Retorna null se a categoria não existir', function() {
             $this->dao->shouldReceive('obterComId')->andReturn(null);
 
             $categoriaObtida = $this->service->obterComId(1);
@@ -107,7 +107,7 @@ describe('CategoriaService', function() {
     } );
 
     describe( 'ObterComRestricoes', function(){
-        it('obtém com sucesso categorias com restrição', function() {
+        it('Obtém com sucesso categorias com restrição', function() {
             $queryParams = new QueryParams(['campo' => 'valor']);
             $this->dao->shouldReceive('obterComRestricoes')->with($queryParams)->andReturn([]);
 
@@ -117,7 +117,7 @@ describe('CategoriaService', function() {
     } );
 
     describe( 'DesativarComId', function(){
-        it('desativa com sucesso categoria com id', function() {
+        it('Desativa categoria com sucesso categoria', function() {
             $id = 1;
             $this->dao->shouldReceive('desativarComId')->with($id)->andReturn(1);
 
@@ -126,7 +126,7 @@ describe('CategoriaService', function() {
             expect($resultado)->toEqual(1);
         });
 
-        it('desativa com sucesso categoria inexistente', function() {
+        it('Retorna zero ao desativar categoria inexistente', function() {
             $id = 1;
             $this->dao->shouldReceive('desativarComId')->with($id)->andReturn(0);
 
