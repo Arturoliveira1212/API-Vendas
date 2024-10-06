@@ -31,7 +31,7 @@ class ClienteBuilder {
         return $this;
     }
 
-    public function comDataNascimento( DateTime $dataNascimento ){
+    public function comDataNascimento( ?DateTime $dataNascimento ){
         $this->cliente->setDataNascimento( $dataNascimento );
         return $this;
     }

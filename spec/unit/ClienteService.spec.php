@@ -8,7 +8,7 @@ use app\services\ClienteService;
 use app\services\Service;
 
 describe( 'ClienteService', function(){
-    beforeAll( function(){
+    beforeEach( function(){
         $this->dao = Mockery::mock(DAOEmBDR::class);
         $this->service = new ClienteService($this->dao);
     } );
@@ -17,6 +17,8 @@ describe( 'ClienteService', function(){
         function validarMensagemAoSalvar( Service $service, Cliente $cliente, string $campoErro, string $mensagemErro ){
             try {
                 $service->salvar($cliente);
+                // Forcando a exceção
+                throw new ServiceException('');
             } catch( ServiceException $e){
                 $erro = json_decode($e->getMessage(), true);
                 expect( $erro )->not->toBeEmpty();
@@ -78,6 +80,46 @@ describe( 'ClienteService', function(){
 
             validarMensagemAoSalvar( $this->service, $cliente, 'cpf', 'Cpf já cadastrado no sistema.' );
         } );
+
+        it( 'Lança exceção ao não enviar data nascimento válida para cliente', function(){
+            $this->dao->shouldReceive('existe')->andReturn(false);
+
+            $cliente = ClienteBuilder::novo()->comId(1)->comNome('Nome válido')->comCpf('354.769.850-26')->comDataNascimento( null )->build();
+
+            validarMensagemAoSalvar( $this->service, $cliente, 'dataNascimento', 'Data de nascimento inválida.' );
+        } );
+
+        it( 'Lança exceção ao enviar data nascimento maior que a data atual', function(){
+            $this->dao->shouldReceive('existe')->andReturn(false);
+
+            $diaAtualMais1Dia = new DateTime();
+            $diaAtualMais1Dia->modify( '+1 days' );
+            $cliente = ClienteBuilder::novo()->comId(1)->comNome('Nome válido')->comCpf('354.769.850-26')->comDataNascimento( $diaAtualMais1Dia )->build();
+
+            validarMensagemAoSalvar( $this->service, $cliente, 'dataNascimento', 'A data de nascimento não pode ser maior que o dia atual.' );
+        } );
+
+        it( 'Lança exceção ao enviar data nascimento que não tem idade mínima necessária', function(){
+            $this->dao->shouldReceive('existe')->andReturn(false);
+
+            $cliente = ClienteBuilder::novo()->comId(1)->comNome('Nome válido')->comCpf('354.769.850-26')->comDataNascimento( new DateTime() )->build();
+
+            validarMensagemAoSalvar( $this->service, $cliente, 'dataNascimento', 'O cliente precisa ter no mínimo ' . Cliente::IDADE_MINIMA . ' anos para se cadastrar no sistema.' );
+        } );
+
+        it('Salva categoria com sucesso ao enviar data de nascimento com idade mínima', function() {
+            $this->dao->shouldReceive('existe')->andReturn(false);
+
+            $dataNascimentoMinima = new DateTime();
+            $dataNascimentoMinima->modify( '- ' . Cliente::IDADE_MINIMA . ' years' );
+            $cliente = ClienteBuilder::novo()->comId(1)->comNome('Nome válido')->comCpf('354.769.850-26')->comDataNascimento( $dataNascimentoMinima )->build();
+
+            $idCadastrado = 1;
+            $this->dao->shouldReceive('salvar')->andReturn($idCadastrado);
+
+            $resultado = $this->service->salvar($cliente);
+            expect($resultado)->toEqual($idCadastrado);
+        });
     } );
 
     describe( 'ObterComId', function(){
